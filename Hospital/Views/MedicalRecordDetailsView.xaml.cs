@@ -32,7 +32,7 @@ namespace Hospital.Views
     {
         private MedicalRecordDetailsViewModel _viewModel;
 
-        public MedicalRecordDetailsView(MedicalRecordJointModel medicalRecordJointModel, DocumentManager documentManagerModel)
+        public MedicalRecordDetailsView(MedicalRecordJointModel medicalRecordJointModel, IDocumentManager documentManagerModel)
         {
             this.InitializeComponent();
             this.AppWindow.Resize(new(800, 600));

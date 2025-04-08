@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 
 namespace Hospital.Managers
 {
-    public class AppointmentManager
+    public class AppointmentManager : IAppointmentManager
     {
         public List<AppointmentJointModel> Appointments { get; private set; }
 
-        private readonly AppointmentsDatabaseService _appointmentsDatabaseService;
+        private readonly IAppointmentsDatabaseService _appointmentsDatabaseService;
 
-        public AppointmentManager(AppointmentsDatabaseService appointmentsDatabaseService)
+        public AppointmentManager(IAppointmentsDatabaseService appointmentsDatabaseService)
         {
             _appointmentsDatabaseService = appointmentsDatabaseService;
             Appointments = new List<AppointmentJointModel>();

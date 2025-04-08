@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 
 namespace Hospital.Managers
 {
-    public class ShiftManager
+    public class ShiftManager : IShiftManager
     {
-        private readonly ShiftsDatabaseService _shiftsDatabaseService;
+        private readonly IShiftsDatabaseService _shiftsDatabaseService;
         private List<ShiftModel> _shifts;
 
-        public ShiftManager(ShiftsDatabaseService shiftsDatabaseService)
+        public ShiftManager(IShiftsDatabaseService shiftsDatabaseService)
         {
             _shiftsDatabaseService = shiftsDatabaseService;
             _shifts = new List<ShiftModel>();

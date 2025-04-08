@@ -17,7 +17,7 @@ namespace Hospital.Views
     {
         private MedicalRecordsHistoryViewModel _viewModel;
 
-        public MedicalRecordsHistoryView(int patientId, MedicalRecordManager medicalRecordManager, DocumentManager documentManager)
+        public MedicalRecordsHistoryView(int patientId, IMedicalRecordManager medicalRecordManager, IDocumentManager documentManager)
         {
             this.InitializeComponent();
             this.AppWindow.Resize(new(800, 600));

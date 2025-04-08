@@ -29,8 +29,8 @@ namespace Hospital.ViewModels
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
         // Managers
-        private readonly AppointmentManager _appointmentManager;
-        private readonly ShiftManager _shiftManager;
+        private readonly IAppointmentManager _appointmentManager;
+        private readonly IShiftManager _shiftManager;
 
         // Observable Collections
         public ObservableCollection<TimeSlotModel> DailySchedule { get; set; } = new();
@@ -82,7 +82,7 @@ namespace Hospital.ViewModels
             }
         }
 
-        public DoctorScheduleViewModel(AppointmentManager appointmentManager, ShiftManager shiftManager)
+        public DoctorScheduleViewModel(IAppointmentManager appointmentManager, IShiftManager shiftManager)
         {
             _appointmentManager = appointmentManager;
             _shiftManager = shiftManager;

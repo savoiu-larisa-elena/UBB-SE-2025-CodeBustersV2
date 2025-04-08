@@ -14,8 +14,8 @@ namespace Hospital.ViewModels
 {
     public class MedicalRecordCreationFormViewModel
     {
-        private readonly MedicalRecordManager _medicalRecordManager;
-        private readonly DocumentManager _documentManager;
+        private readonly IMedicalRecordManager _medicalRecordManager;
+        private readonly IDocumentManager _documentManager;
 
         private string _patientName;
         private string _doctorName;
@@ -50,7 +50,7 @@ namespace Hospital.ViewModels
         public ObservableCollection<string> Documents { get; private set; }
 
 
-        public MedicalRecordCreationFormViewModel(MedicalRecordManager medicalRecordManager, DocumentManager documentManagerModel)
+        public MedicalRecordCreationFormViewModel(IMedicalRecordManager medicalRecordManager, IDocumentManager documentManagerModel)
         {
             _medicalRecordManager = medicalRecordManager;
             _documentManager = documentManagerModel;

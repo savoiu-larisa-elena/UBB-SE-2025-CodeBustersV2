@@ -11,12 +11,13 @@ using System.Threading.Tasks;
 
 namespace Hospital.Managers
 {
-    public class MedicalRecordManager
+    public class MedicalRecordManager : IMedicalRecordManager
     {
         public List<MedicalRecordJointModel> MedicalRecords { get; private set; }
-        private readonly MedicalRecordsDatabaseService _medicalRecordsDatabaseService;
 
-        public MedicalRecordManager(MedicalRecordsDatabaseService medicalRecordsDatabaseService)
+        private readonly IMedicalRecordsDatabaseService _medicalRecordsDatabaseService;
+
+        public MedicalRecordManager(IMedicalRecordsDatabaseService medicalRecordsDatabaseService)
         {
             _medicalRecordsDatabaseService = medicalRecordsDatabaseService;
             MedicalRecords = new List<MedicalRecordJointModel>();
@@ -127,7 +128,7 @@ namespace Hospital.Managers
             }
         }
 
-        public async Task<List<MedicalRecordJointModel>> getMedicalRecords()
+        public async Task<List<MedicalRecordJointModel>> GetMedicalRecords()
         {
             return MedicalRecords;
         }

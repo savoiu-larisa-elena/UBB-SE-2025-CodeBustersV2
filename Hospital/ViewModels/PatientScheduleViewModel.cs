@@ -11,10 +11,10 @@ namespace Hospital.ViewModels
 {
     class PatientScheduleViewModel
     {
-        private readonly AppointmentManager _appointmentManager;
+        private readonly IAppointmentManager _appointmentManager;
         public ObservableCollection<DateTime> Appointments { get; private set; }
 
-        public PatientScheduleViewModel(AppointmentManager appointmentManager)
+        public PatientScheduleViewModel(IAppointmentManager appointmentManager)
         {
             _appointmentManager = appointmentManager;
             Appointments = new ObservableCollection<DateTime>();

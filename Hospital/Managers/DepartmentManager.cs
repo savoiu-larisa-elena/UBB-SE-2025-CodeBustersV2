@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 
 namespace Hospital.Managers
 {
-    public class DepartmentManager
+    public class DepartmentManager : IDepartmentManager
     {
         public static List<DepartmentModel> Departments { get; private set; }
 
         // IF ERROR THIS WAS PUBLIC BEFORE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        private readonly DepartmentsDatabaseService _departmentDatabaseService;
+        private readonly IDepartmentsDatabaseService _departmentDatabaseService;
 
-        public DepartmentManager(DepartmentsDatabaseService departmentDatabaseService)
+        public DepartmentManager(IDepartmentsDatabaseService departmentDatabaseService)
         {
             _departmentDatabaseService = departmentDatabaseService;
             Departments = new List<DepartmentModel>();
