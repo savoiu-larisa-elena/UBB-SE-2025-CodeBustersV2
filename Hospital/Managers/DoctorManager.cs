@@ -10,13 +10,13 @@ using System.Threading.Tasks;
 
 namespace Hospital.Managers
 {
-    public class DoctorManager
+    public class DoctorManager : IDoctorManager
     {
         public List<DoctorJointModel> Doctors { get; private set; }
 
-        private DoctorsDatabaseService _doctorDatabaseService;
+        private IDoctorsDatabaseService _doctorDatabaseService;
 
-        public DoctorManager(DoctorsDatabaseService doctorDatabaseService)
+        public DoctorManager(IDoctorsDatabaseService doctorDatabaseService)
         {
             _doctorDatabaseService = doctorDatabaseService;
             Doctors = new List<DoctorJointModel>();

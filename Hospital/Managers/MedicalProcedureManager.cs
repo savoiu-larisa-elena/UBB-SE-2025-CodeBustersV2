@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 
 namespace Hospital.Managers
 {
-    public class MedicalProcedureManager
+    public class MedicalProcedureManager : IMedicalProcedureManager
     {
         public static List<ProcedureModel> Procedures { get; private set; }
-        private readonly MedicalProceduresDatabaseService _medicalProcedureDatabaseService;
+        private readonly IMedicalProceduresDatabaseService _medicalProcedureDatabaseService;
 
-        public MedicalProcedureManager(MedicalProceduresDatabaseService medicalProcedureDatabaseService)
+        public MedicalProcedureManager(IMedicalProceduresDatabaseService medicalProcedureDatabaseService)
         {
             _medicalProcedureDatabaseService = medicalProcedureDatabaseService;
             Procedures = new List<ProcedureModel>();

@@ -58,11 +58,11 @@ namespace Hospital.ViewModels
 
 
         //Manager Models
-        private DepartmentManager _departmentManager;
-        private MedicalProcedureManager _procedureManager;
-        private DoctorManager _doctorManager;
-        private ShiftManager _shiftManager;
-        private Managers.AppointmentManager _appointmentManager;
+        private IDepartmentManager _departmentManager;
+        private IMedicalProcedureManager _procedureManager;
+        private IDoctorManager _doctorManager;
+        private IShiftManager _shiftManager;
+        private IAppointmentManager _appointmentManager;
 
         //public event
         public event PropertyChangedEventHandler PropertyChanged;
@@ -157,7 +157,7 @@ namespace Hospital.ViewModels
         //XAML Root
         public XamlRoot? Root { get; set; }
 
-        private AppointmentCreationFormViewModel(DepartmentManager departmentManagerModel, MedicalProcedureManager procedureManagerModel, DoctorManager doctorManagerModel, ShiftManager shiftManagerModel, Managers.AppointmentManager appointmentManagerModel)
+        private AppointmentCreationFormViewModel(IDepartmentManager departmentManagerModel, IMedicalProcedureManager procedureManagerModel, IDoctorManager doctorManagerModel, ShiftManager shiftManagerModel, IAppointmentManager appointmentManagerModel)
         {
             _departmentManager = departmentManagerModel;
             _procedureManager = procedureManagerModel;

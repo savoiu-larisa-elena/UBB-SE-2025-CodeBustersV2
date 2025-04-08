@@ -17,7 +17,7 @@ namespace Hospital.Views
     {
         private readonly AppointmentDetailsViewModel _viewModel;
 
-        public AppointmentDetailsView(AppointmentJointModel appointment, AppointmentManager appointmentManager, Action refreshAppointments)
+        public AppointmentDetailsView(AppointmentJointModel appointment, IAppointmentManager appointmentManager, Action refreshAppointments)
         {
             this.InitializeComponent();
             this.Activate();

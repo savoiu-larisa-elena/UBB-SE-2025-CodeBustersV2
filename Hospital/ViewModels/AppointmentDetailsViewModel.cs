@@ -12,7 +12,7 @@ namespace Hospital.ViewModels
 {
     public class AppointmentDetailsViewModel : INotifyPropertyChanged
     {
-        private readonly AppointmentManager _appointmentManager;
+        private readonly IAppointmentManager _appointmentManager;
         private readonly Action _closeWindowAction;
         private readonly Action _refreshAppointmentsAction;
         private readonly AppointmentJointModel _appointment;
@@ -49,7 +49,7 @@ namespace Hospital.ViewModels
 
         public AppointmentDetailsViewModel(
             AppointmentJointModel appointment,
-            AppointmentManager appointmentManager,
+            IAppointmentManager appointmentManager,
             Action closeWindow,
             Action refreshAppointments)
         {

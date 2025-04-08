@@ -14,17 +14,17 @@ namespace Hospital.ViewModels
 {
     public class MedicalRecordsHistoryViewModel
     {
-        private readonly MedicalRecordManager _medicalRecordManager;
-        private readonly DocumentManager _documentManager;
+        private readonly IMedicalRecordManager _medicalRecordManager;
+        private readonly IDocumentManager _documentManager;
 
-        public List<MedicalRecordJointModel> MedicalRecords { get; private set; }
+        public Task<List<MedicalRecordJointModel>> MedicalRecords { get; private set; } // changed in task
 
-        public MedicalRecordsHistoryViewModel(int patientId, MedicalRecordManager medicalRecordManager, DocumentManager documentManager)
+        public MedicalRecordsHistoryViewModel(int patientId, IMedicalRecordManager medicalRecordManager, IDocumentManager documentManager)
         {
             _medicalRecordManager = medicalRecordManager;
             _documentManager = documentManager;
             _medicalRecordManager.LoadMedicalRecordsForPatient(patientId).Wait();
-            MedicalRecords = medicalRecordManager.MedicalRecords;
+            MedicalRecords = medicalRecordManager.GetMedicalRecords();
         }
 
         public void ShowMedicalRecordDetails(MedicalRecordJointModel medicalRecord)

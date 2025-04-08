@@ -7,7 +7,7 @@ using DocumentModel = Hospital.Models.DocumentModel;
 
 namespace Hospital.DatabaseServices
 {
-    public class DocumentDatabaseService
+    public class DocumentDatabaseService : IDocumentDatabaseService
     {
         private readonly ApplicationConfiguration _configuration;
 

@@ -16,7 +16,7 @@ namespace Hospital.Views
 {
     public sealed partial class PatientScheduleView : Window
     {
-        private readonly AppointmentManager _appointmentManager;
+        private readonly IAppointmentManager _appointmentManager;
         public ObservableCollection<TimeSlotModel> DailyAppointments { get; private set; }
         private ObservableCollection<DateTimeOffset> HighlightedDates;
         private readonly DispatcherQueue _dispatcherQueue;

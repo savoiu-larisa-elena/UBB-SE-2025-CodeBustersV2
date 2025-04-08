@@ -22,14 +22,14 @@ namespace Hospital.Views
         private readonly DoctorScheduleViewModel _viewModel;
         public ObservableCollection<TimeSlotModel> _dailySchedule { get; private set; }
 
-        private MedicalRecordManager _medicalRecordManager;
-        private DocumentManager _documentManager;
+        private IMedicalRecordManager _medicalRecordManager;
+        private IDocumentManager _documentManager;
 
         public DoctorScheduleView(
-            Managers.AppointmentManager appointmentManagerModel,
-            ShiftManager shiftManagerModel,
-            MedicalRecordManager medicalRecordManager,
-            DocumentManager documentManager)
+            IAppointmentManager appointmentManagerModel,
+            IShiftManager shiftManagerModel,
+            IMedicalRecordManager medicalRecordManager,
+            IDocumentManager documentManager)
         {
             _viewModel = new DoctorScheduleViewModel(appointmentManagerModel, shiftManagerModel);
             _medicalRecordManager = medicalRecordManager;

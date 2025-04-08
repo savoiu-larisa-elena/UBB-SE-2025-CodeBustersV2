@@ -13,13 +13,13 @@ using DocumentModel = Hospital.Models.DocumentModel;
 
 namespace Hospital.Managers
 {
-    public class DocumentManager
+    public class DocumentManager : IDocumentManager
     {
         public List<DocumentModel> Documents { get; private set; }
 
-        private readonly DocumentDatabaseService _documentDatabaseService;
+        private readonly IDocumentDatabaseService _documentDatabaseService;
 
-        public DocumentManager(DocumentDatabaseService documentDatabaseService)
+        public DocumentManager(IDocumentDatabaseService documentDatabaseService)
         {
             _documentDatabaseService = documentDatabaseService;
             Documents = new List<DocumentModel>();

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Hospital.DatabaseServices
 {
-    public class DepartmentsDatabaseService
+    public class DepartmentsDatabaseService : IDepartmentsDatabaseService
     {
         private readonly ApplicationConfiguration _configuration;
 

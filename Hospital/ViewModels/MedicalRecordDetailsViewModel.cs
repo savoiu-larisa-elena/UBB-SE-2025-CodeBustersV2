@@ -15,16 +15,16 @@ namespace Hospital.ViewModels
 {
     class MedicalRecordDetailsViewModel
     {
-        private DocumentManager _documentManager;
+        private IDocumentManager _documentManager;
         public MedicalRecordJointModel MedicalRecord { get; private set; }
         public ObservableCollection<DocumentModel> Documents { get; private set; }
 
-        public MedicalRecordDetailsViewModel(MedicalRecordJointModel medicalRecord, DocumentManager documentManager)
+        public MedicalRecordDetailsViewModel(MedicalRecordJointModel medicalRecord, IDocumentManager documentManager)
         {
             MedicalRecord = medicalRecord;
             _documentManager = documentManager;
             _documentManager.LoadDocuments(MedicalRecord.MedicalRecordId);
-            Documents = new ObservableCollection<DocumentModel>(_documentManager.Documents);
+            Documents = new ObservableCollection<DocumentModel>(_documentManager.GetDocuments());
         }
 
         public async Task OnDownloadButtonClicked()
