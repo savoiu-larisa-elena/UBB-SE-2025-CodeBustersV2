@@ -101,7 +101,7 @@ namespace Hospital.ViewModels
         {
             if (objectTimeSlot is not TimeSlotModel selectedSlot) return;
 
-            if (string.IsNullOrEmpty(selectedSlot.Appointment) && selectedSlot.HighlightColor.Color == Colors.Transparent)
+            if (string.IsNullOrEmpty(selectedSlot.Appointment) && selectedSlot.HighlightStatus == "None")
                 return;
 
             SelectedSlot = selectedSlot;

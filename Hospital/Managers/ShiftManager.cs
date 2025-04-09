@@ -86,10 +86,10 @@ namespace Hospital.Managers
                     TimeSlot = startTime,
                     Time = startTime.ToString(TimeFormat),
                     Appointment = "",
-                    HighlightColor = new SolidColorBrush(Colors.Transparent)
+                    HighlightStatus = "None"
                 };
 
-                SolidColorBrush highlightColor = new SolidColorBrush(Colors.Transparent);
+                String highlightStatus = "None";
 
                 bool isInShift = selectedShifts.Any(shift =>
                 {
@@ -107,14 +107,14 @@ namespace Hospital.Managers
                 if (matchingAppointment != null)
                 {
                     slot.Appointment = matchingAppointment.ProcedureName;
-                    highlightColor = new SolidColorBrush(Colors.Orange);
+                    highlightStatus = "Booked";
                 }
                 else if (isInShift)
                 {
-                    highlightColor = new SolidColorBrush(Colors.Green);
+                    highlightStatus = "Available";
                 }
 
-                slot.HighlightColor = highlightColor;
+                slot.HighlightStatus = highlightStatus;
                 slots.Add(slot);
                 startTime = startTime.AddMinutes(TimeSlotIntervalInMinutes);
             }

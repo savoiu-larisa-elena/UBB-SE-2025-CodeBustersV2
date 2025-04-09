@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Hospital.Exceptions
 {
-    class AppointmentConflictException : Exception
+    public class AppointmentConflictException : Exception
     {
         public AppointmentConflictException(string message) : base(message)
         {

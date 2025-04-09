@@ -72,7 +72,7 @@ namespace Hospital.ViewModels
                     if (slot.TimeSlot >= appointmentStart && slot.TimeSlot < appointmentEnd)
                     {
                         slot.Appointment = appointment.ProcedureName;
-                        slot.HighlightColor = new SolidColorBrush(Colors.Green);
+                        slot.HighlightStatus = "Available";
                     }
                 }
             }
@@ -96,7 +96,7 @@ namespace Hospital.ViewModels
                     TimeSlot = startTime,
                     Time = startTime.ToString("hh:mm tt"),
                     Appointment = "",
-                    HighlightColor = new SolidColorBrush(Colors.Transparent)
+                    HighlightStatus = "None"
                 });
 
                 startTime = startTime.AddMinutes(30);

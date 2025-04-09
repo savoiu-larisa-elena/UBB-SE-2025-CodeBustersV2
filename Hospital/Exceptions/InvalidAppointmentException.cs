@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Hospital.Exceptions
 {
-    class InvalidAppointmentException : Exception
+    public class InvalidAppointmentException : Exception
     {
         public InvalidAppointmentException(string message) : base(message)
         {

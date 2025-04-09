@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35818.85 d17.13
+VisualStudioVersion = 17.13.35818.85
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hospital", "Hospital.csproj", "{A820373E-6B7E-4E1A-86C8-4AF8AE1AEDC8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HospitalTest", "..\HospitalTest\HospitalTest.csproj", "{38C660C5-9A83-4B38-8228-4EFA8BB70D4C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,18 @@ Global
 		{A820373E-6B7E-4E1A-86C8-4AF8AE1AEDC8}.Release|x86.ActiveCfg = Release|x86
 		{A820373E-6B7E-4E1A-86C8-4AF8AE1AEDC8}.Release|x86.Build.0 = Release|x86
 		{A820373E-6B7E-4E1A-86C8-4AF8AE1AEDC8}.Release|x86.Deploy.0 = Release|x86
+		{38C660C5-9A83-4B38-8228-4EFA8BB70D4C}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{38C660C5-9A83-4B38-8228-4EFA8BB70D4C}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{38C660C5-9A83-4B38-8228-4EFA8BB70D4C}.Debug|x64.ActiveCfg = Debug|x64
+		{38C660C5-9A83-4B38-8228-4EFA8BB70D4C}.Debug|x64.Build.0 = Debug|x64
+		{38C660C5-9A83-4B38-8228-4EFA8BB70D4C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{38C660C5-9A83-4B38-8228-4EFA8BB70D4C}.Debug|x86.Build.0 = Debug|Any CPU
+		{38C660C5-9A83-4B38-8228-4EFA8BB70D4C}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{38C660C5-9A83-4B38-8228-4EFA8BB70D4C}.Release|ARM64.Build.0 = Release|Any CPU
+		{38C660C5-9A83-4B38-8228-4EFA8BB70D4C}.Release|x64.ActiveCfg = Release|Any CPU
+		{38C660C5-9A83-4B38-8228-4EFA8BB70D4C}.Release|x64.Build.0 = Release|Any CPU
+		{38C660C5-9A83-4B38-8228-4EFA8BB70D4C}.Release|x86.ActiveCfg = Release|Any CPU
+		{38C660C5-9A83-4B38-8228-4EFA8BB70D4C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

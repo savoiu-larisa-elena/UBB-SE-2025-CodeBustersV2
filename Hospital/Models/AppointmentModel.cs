@@ -24,5 +24,7 @@ namespace Hospital.Models
             Finished = finished;
             ProcedureId = procedureId;
         }
+
+        public AppointmentModel() { }
     }
 }

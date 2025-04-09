@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Hospital.Exceptions
 {
-    class DoctorNotFoundException : Exception
+    public class DoctorNotFoundException : Exception
     {
         public DoctorNotFoundException(string message) : base(message)
         {

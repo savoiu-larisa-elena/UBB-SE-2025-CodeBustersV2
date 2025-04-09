@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Hospital.Exceptions
 {
-    class ScheduleNotFoundException : Exception
+    public class ScheduleNotFoundException : Exception
     {
         public ScheduleNotFoundException(string message) : base(message) { }
     }

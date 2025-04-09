@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Hospital.Exceptions
 {
-    class ShiftNotFoundException : Exception
+    public class ShiftNotFoundException : Exception
     {
         public ShiftNotFoundException(string message) : base(message) { }
     }

@@ -48,5 +48,7 @@ namespace Hospital.Models
             ProcedureName = procedureName;
             ProcedureDuration = procedureDuration;
         }
+
+        public AppointmentJointModel() { }
     }
 }
