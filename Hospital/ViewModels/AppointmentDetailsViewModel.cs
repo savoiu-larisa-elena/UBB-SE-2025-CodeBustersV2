@@ -64,23 +64,13 @@ namespace Hospital.ViewModels
             ProcedureName = appointment.ProcedureName;
             ProcedureDuration = $"{appointment.ProcedureDuration.TotalMinutes} minutes";
 
-            // Make sure to update the eligibility before binding
-            UpdateCancellationEligibility();
-            OnPropertyChanged(nameof(CanCancelAppointment));
+            // Use AppointmentManager to check cancellation eligibility
+            CanCancelAppointment = _appointmentManager.CanCancelAppointment(_appointment);
 
             CancelAppointmentCommand = new RelayCommand(
                 async _ => await CancelAppointment(),
                 _ => CanCancelAppointment
             );
-        }
-
-
-        private int _minimumHoursBeforeCancellation = 24;
-
-        private void UpdateCancellationEligibility()
-        {
-            TimeSpan remainingTime = _appointment.DateAndTime.ToLocalTime() - DateTime.Now;
-            CanCancelAppointment = remainingTime.TotalHours >= _minimumHoursBeforeCancellation;
         }
 
         public DateTime AppointmentDateTime => _appointment.DateAndTime;

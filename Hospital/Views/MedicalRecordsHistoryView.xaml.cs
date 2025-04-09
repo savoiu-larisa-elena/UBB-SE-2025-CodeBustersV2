@@ -31,10 +31,10 @@ namespace Hospital.Views
         {
             try
             {
-                var selectedRecord = MedicalRecordsListView.SelectedItem;
+                var selectedRecord = this.MedicalRecordsListView.SelectedItem;
                 if (selectedRecord is MedicalRecordJointModel medicalRecord)
                 {
-                    _viewModel.ShowMedicalRecordDetails(medicalRecord);
+                    this._viewModel.ShowMedicalRecordDetails(medicalRecord);
                 }
                 else if (selectedRecord == null)
                 {

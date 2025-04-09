@@ -1,3 +1,4 @@
+create database HospitalDB
 -------------------------------------
 -- Clean up existing tables (if any)
 -------------------------------------
@@ -340,7 +341,17 @@ VALUES
     (4, 8),  -- Dr. Bob Johnson assigned to afternoon shift on March 23
     (1, 9);  -- Dr. John Doe assigned to evening shift on March 23
 
+INSERT INTO Schedules (DoctorId, ShiftId)
+VALUES
+    (1, 10)
 
+INSERT INTO Appointments (PatientId, DoctorId, DateAndTime, ProcedureId, Finished)
+VALUES
+    (1, 1, '2025-04-15T17:00:00', 1, 0) -- Jane Doe w/ Dr. John Smith (Cardiology)
+
+INSERT INTO Shifts (Date, StartTime, EndTime)
+VALUES
+    ('2025-04-15', '08:00:00', '12:00:00')
 
 -------------------------------------
 -- Verify Data

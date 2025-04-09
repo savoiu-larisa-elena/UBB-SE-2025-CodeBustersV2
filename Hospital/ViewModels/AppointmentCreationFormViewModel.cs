@@ -21,7 +21,7 @@ using Windows.UI.Popups;
 
 namespace Hospital.ViewModels
 {
-    class AppointmentCreationFormViewModel : INotifyPropertyChanged
+    public class AppointmentCreationFormViewModel : INotifyPropertyChanged
     {
 
 
@@ -84,7 +84,7 @@ namespace Hospital.ViewModels
             {
                 _selectedCalendarDate = value;
                 OnPropertyChanged(nameof(SelectedCalendarDate));
-                Task availableTimeSlotsTask = LoadAvailableTimeSlots();
+                // Task availableTimeSlotsTask = LoadAvailableTimeSlots();
             }
         }
 
@@ -221,6 +221,7 @@ namespace Hospital.ViewModels
         {
             HighlightedDates.Clear();
             SelectedCalendarDate = null;
+            IsDateEnabled = true;
 
             if (SelectedDoctor == null)
             {

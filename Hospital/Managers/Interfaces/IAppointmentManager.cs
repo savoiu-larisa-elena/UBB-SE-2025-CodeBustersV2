@@ -15,5 +15,7 @@ namespace Hospital.Managers
         Task LoadAppointmentsForDoctor(int doctorId);
         Task LoadAppointmentsByDoctorAndDate(int doctorId, DateTime date);
         Task CreateAppointment(AppointmentModel newAppointment);
+
+        public bool CanCancelAppointment(AppointmentJointModel appointment);
     }
 } 

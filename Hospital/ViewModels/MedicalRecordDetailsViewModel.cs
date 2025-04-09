@@ -15,7 +15,7 @@ namespace Hospital.ViewModels
 {
     class MedicalRecordDetailsViewModel
     {
-        private IDocumentManager _documentManager;
+        private readonly IDocumentManager _documentManager;
         public MedicalRecordJointModel MedicalRecord { get; private set; }
         public ObservableCollection<DocumentModel> Documents { get; private set; }
 
@@ -34,7 +34,7 @@ namespace Hospital.ViewModels
 
         public bool getDownloadButtonIsEnabled()
         {
-            return Documents.Count > 0;
+            return _documentManager.HasDocuments(MedicalRecord.MedicalRecordId);
         }
     }
 }

@@ -9,6 +9,7 @@ using Hospital.Models;
 using System.Threading.Tasks;
 using WinRT.Interop;
 using Microsoft.UI.Xaml;
+using System.ComponentModel.DataAnnotations;
 
 namespace Hospital.Views
 {
@@ -63,37 +64,29 @@ namespace Hospital.Views
         }
         private async void SubmitButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_viewModel.Conclusion.Length > 255)
+            try
             {
-                await ShowErrorDialog("Conclusion cannot exceed 255 characters.");
-                return;
-            }
+                int recordId = await _viewModel.CreateMedicalRecord(_appointment, _viewModel.Conclusion);
 
-            if (string.IsNullOrWhiteSpace(_viewModel.Conclusion))
-            {
-                await ShowErrorDialog("Conclusion cannot be empty.");
-                return;
-            }
-
-            _appointment.Finished = true;
-            _appointment.DateAndTime = DateTime.Now;
-
-            int recordId = await _viewModel.CreateMedicalRecord(_appointment, _viewModel.Conclusion);
-
-            if (recordId > 0)
-            {
-                // Add documents with the new MedicalRecordId
-                foreach (var documentPath in _viewModel.DocumentPaths)
+                if (recordId > 0)
                 {
-                    _viewModel.AddDocument(recordId, documentPath);
-                }
+                    // Add documents with the new MedicalRecordId
+                    foreach (var documentPath in _viewModel.DocumentPaths)
+                    {
+                        await _viewModel.AddDocument(recordId, documentPath);
+                    }
 
-                await ShowSuccessDialog("Medical record created successfully!");
-                this.Close();
+                    await ShowSuccessDialog("Medical record created successfully!");
+                    this.Close();
+                }
             }
-            else
+            catch (ValidationException ex)
             {
-                await ShowErrorDialog("Failed to create medical record.");
+                await ShowErrorDialog(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                await ShowErrorDialog("Failed to create medical record: " + ex.Message);
             }
         }
 

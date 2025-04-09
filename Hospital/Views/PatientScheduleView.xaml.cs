@@ -11,14 +11,13 @@ using System.Collections.Generic;
 using Microsoft.UI;
 using System.Threading.Tasks;
 using Microsoft.UI.Dispatching;
+using Hospital.ViewModels;
 
 namespace Hospital.Views
 {
     public sealed partial class PatientScheduleView : Window
     {
-        private readonly IAppointmentManager _appointmentManager;
-        public ObservableCollection<TimeSlotModel> DailyAppointments { get; private set; }
-        private ObservableCollection<DateTimeOffset> HighlightedDates;
+        private readonly PatientScheduleViewModel _viewModel;
         private readonly DispatcherQueue _dispatcherQueue;
 
         public PatientScheduleView()
@@ -27,28 +26,20 @@ namespace Hospital.Views
             this.InitializeComponent();
 
             _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+            _viewModel = new PatientScheduleViewModel(new AppointmentManager(new DatabaseServices.AppointmentsDatabaseService()));
 
-            _appointmentManager = new AppointmentManager(new DatabaseServices.AppointmentsDatabaseService());
-            DailyAppointments = new ObservableCollection<TimeSlotModel>();
-            HighlightedDates = new ObservableCollection<DateTimeOffset>();
-
-            DailyScheduleList.ItemsSource = DailyAppointments;
+            DailyScheduleList.ItemsSource = _viewModel.DailyAppointments;
             AppointmentsCalendar.CalendarViewDayItemChanging += CalendarView_DayItemChanging;
 
-            DateTime now = DateTime.Now;
-            DateTime firstDay = new DateTime(now.Year, now.Month, 1);
-            DateTime lastDay = firstDay.AddMonths(1).AddDays(-1);
-
-            AppointmentsCalendar.MinDate = firstDay;
-            AppointmentsCalendar.MaxDate = lastDay;
+            AppointmentsCalendar.MinDate = _viewModel.MinDate;
+            AppointmentsCalendar.MaxDate = _viewModel.MaxDate;
 
             LoadAppointmentsAndUpdateUI();
         }
 
         private async void LoadAppointmentsAndUpdateUI()
         {
-            await LoadAppointmentsForPatient(1); // can be changed to the current patient
-
+            await _viewModel.LoadAppointmentsForPatient(1); // can be changed to the current patient
         }
 
         private void RefreshButton_Click(object sender, RoutedEventArgs e)
@@ -56,92 +47,20 @@ namespace Hospital.Views
             RefreshAppointments();
         }
 
-        private async Task LoadAppointmentsForPatient(int patientId)
-        {
-            await _appointmentManager.LoadAppointmentsForPatient(patientId);
-
-            HighlightedDates.Clear();
-            foreach (var appointment in _appointmentManager.Appointments)
-            {
-                HighlightedDates.Add(new DateTimeOffset(appointment.DateAndTime.Date));
-            }
-
-            RefreshAppointments();
-        }
-
-
         private void AppointmentsCalendar_SelectedDatesChanged(CalendarView sender, CalendarViewSelectedDatesChangedEventArgs args)
         {
             if (args.AddedDates.Count > 0)
             {
                 DateTime selectedDate = args.AddedDates[0].DateTime.Date;
-
-                DailyAppointments.Clear();
-                List<TimeSlotModel> timeSlots = GenerateTimeSlots(selectedDate);
-
-                var selectedAppointments = _appointmentManager.Appointments
-                    .Where(a => a.DateAndTime.Date == selectedDate)
-                    .OrderBy(a => a.DateAndTime.TimeOfDay)
-                    .ToList();
-
-                bool anyAppointments = false;
-
-                foreach (var appointment in selectedAppointments)
-                {
-                    DateTime appointmentStart = appointment.DateAndTime;
-                    DateTime appointmentEnd = appointmentStart.Add(appointment.ProcedureDuration);
-
-                    foreach (var slot in timeSlots)
-                    {
-                        if (slot.TimeSlot >= appointmentStart && slot.TimeSlot < appointmentEnd)
-                        {
-                            slot.Appointment = appointment.ProcedureName;
-                            slot.HighlightColor = new SolidColorBrush(Colors.Green);
-                            anyAppointments = true;
-                        }
-                    }
-                }
-
-                foreach (var slot in timeSlots)
-                {
-                    DailyAppointments.Add(slot);
-                }
-
-                NoAppointmentsText.Visibility = anyAppointments ? Visibility.Collapsed : Visibility.Visible;
+                _viewModel.UpdateDailySchedule(selectedDate);
+                NoAppointmentsText.Visibility = _viewModel.HasAppointmentsOnDate(selectedDate) ? Visibility.Collapsed : Visibility.Visible;
             }
         }
-
-        private List<TimeSlotModel> GenerateTimeSlots(DateTime date)
-        {
-            List<TimeSlotModel> slots = new List<TimeSlotModel>();
-
-            // Start at 8:00 AM
-            DateTime startTime = date.Date.AddHours(8);
-
-            // End at 6:00 PM (18:00)
-            DateTime endTime = date.Date.AddHours(18);
-
-            while (startTime < endTime)
-            {
-                slots.Add(new TimeSlotModel
-                {
-                    TimeSlot = startTime,
-                    Time = startTime.ToString("hh:mm tt"),
-                    Appointment = "",
-                    HighlightColor = new SolidColorBrush(Colors.Transparent)
-                });
-
-                startTime = startTime.AddMinutes(30);
-            }
-
-            return slots;
-        }
-
 
         private void CalendarView_DayItemChanging(CalendarView sender, CalendarViewDayItemChangingEventArgs args)
         {
             var date = args.Item.Date.Date;
-            if (HighlightedDates.Any(a => a.Date == date))
+            if (_viewModel.HighlightedDates.Any(a => a.Date == date))
             {
                 args.Item.Background = new SolidColorBrush(Colors.LightGreen);
             }
@@ -152,37 +71,25 @@ namespace Hospital.Views
             if (e.AddedItems.Count > 0)
             {
                 var selectedSlot = (TimeSlotModel)e.AddedItems[0];
-
-                // Clear selection immediately to allow re-selection later
                 DailyScheduleList.SelectedItem = null;
 
-                if (!string.IsNullOrEmpty(selectedSlot.Appointment))
+                var selectedDate = AppointmentsCalendar.SelectedDates.FirstOrDefault().DateTime.Date;
+                var selectedAppointment = _viewModel.GetAppointmentForTimeSlot(selectedSlot, selectedDate);
+
+                if (selectedAppointment != null)
                 {
-                    var selectedDate = AppointmentsCalendar.SelectedDates.Any()
-                        ? AppointmentsCalendar.SelectedDates.First().DateTime.Date
-                        : DateTime.MinValue;
-
-                    var selectedAppointment = _appointmentManager.Appointments
-                        .FirstOrDefault(a =>
-                            a.ProcedureName == selectedSlot.Appointment &&
-                            a.DateAndTime.Date == selectedDate);
-
-                    if (selectedAppointment != null)
-                    {
-                        await ShowAppointmentDetailsDialog(selectedAppointment);
-                    }
+                    await ShowAppointmentDetailsDialog(selectedAppointment);
                 }
             }
         }
 
-
         private async Task ShowAppointmentDetailsDialog(AppointmentJointModel appointment)
         {
             string message = $"Date and Time: {appointment.DateAndTime:f}\n" +
-                             $"Doctor: {appointment.DoctorName}\n" +
-                             $"Department: {appointment.DepartmentName}\n" +
-                             $"Procedure: {appointment.ProcedureName}\n" +
-                             $"Procedure Duration: {appointment.ProcedureDuration.TotalMinutes} minutes";
+                           $"Doctor: {appointment.DoctorName}\n" +
+                           $"Department: {appointment.DepartmentName}\n" +
+                           $"Procedure: {appointment.ProcedureName}\n" +
+                           $"Procedure Duration: {appointment.ProcedureDuration.TotalMinutes} minutes";
 
             ContentDialog dialog = new ContentDialog
             {
@@ -192,22 +99,24 @@ namespace Hospital.Views
                 RequestedTheme = ElementTheme.Default
             };
 
-            StackPanel dialogContent = new StackPanel
-            {
-                Spacing = 10
-            };
-
-
+            StackPanel dialogContent = new StackPanel { Spacing = 10 };
             dialogContent.Children.Add(new TextBlock
             {
                 Text = message,
                 TextWrapping = TextWrapping.Wrap
             });
 
-            // Determine if cancellation is allowed
-            bool canCancel = (appointment.DateAndTime.ToLocalTime() - DateTime.Now).TotalHours >= 24;
+            bool canCancel = _viewModel.CanCancelAppointment(appointment);
+            StackPanel buttonRow = CreateAppointmentButtonPanel(dialog, appointment, canCancel);
+            dialogContent.Children.Add(buttonRow);
+            dialog.Content = dialogContent;
 
-            StackPanel buttonRow = new StackPanel
+            await dialog.ShowAsync();
+        }
+
+        private StackPanel CreateAppointmentButtonPanel(ContentDialog dialog, AppointmentJointModel appointment, bool canCancel)
+        {
+            var buttonRow = new StackPanel
             {
                 Orientation = Orientation.Horizontal,
                 HorizontalAlignment = HorizontalAlignment.Center,
@@ -215,9 +124,6 @@ namespace Hospital.Views
                 Margin = new Thickness(0, 10, 0, 0)
             };
 
-            // Go Back button
-
-            // Cancel button (enabled or disabled)
             if (canCancel)
             {
                 Button cancelBtn = new Button
@@ -228,79 +134,7 @@ namespace Hospital.Views
                     Background = new SolidColorBrush(Colors.Red),
                     Foreground = new SolidColorBrush(Colors.White)
                 };
-                cancelBtn.Click += async (s, e) =>
-                {
-                    dialog.Hide();
-                    ContentDialog confirmDialog = new ContentDialog
-                    {
-                        Title = "Confirm Cancellation",
-                        Content = "Are you sure you want to cancel this appointment?",
-                        PrimaryButtonText = "Yes",
-                        CloseButtonText = "No",
-                        DefaultButton = ContentDialogButton.Close,
-                        XamlRoot = this.Content.XamlRoot
-                    };
-
-                    var result = await confirmDialog.ShowAsync();
-                    if (result == ContentDialogResult.Primary)
-                    {
-                        try
-                        {
-                            _appointmentManager.RemoveAppointment(appointment.AppointmentId);
-
-
-                            // Force a full refresh of the DailyScheduleList (destroy and recreate)
-                            if (AppointmentsCalendar.SelectedDates.Any())
-                            {
-                                var selectedDate = AppointmentsCalendar.SelectedDates.First().DateTime.Date;
-
-                                DailyAppointments.Clear();
-
-                                List<TimeSlotModel> timeSlots = GenerateTimeSlots(selectedDate);
-
-                                var selectedAppointments = _appointmentManager.Appointments
-                                    .Where(a => a.DateAndTime.Date == selectedDate)
-                                    .OrderBy(a => a.DateAndTime.TimeOfDay)
-                                    .ToList();
-
-                                foreach (var appointment in selectedAppointments)
-                                {
-                                    DateTime start = appointment.DateAndTime;
-                                    DateTime end = start.Add(appointment.ProcedureDuration);
-
-                                    foreach (var slot in timeSlots)
-                                    {
-                                        if (slot.TimeSlot >= start && slot.TimeSlot < end)
-                                        {
-                                            slot.Appointment = appointment.ProcedureName;
-                                            slot.HighlightColor = new SolidColorBrush(Colors.Green);
-                                        }
-                                    }
-                                }
-
-                                foreach (var slot in timeSlots)
-                                {
-                                    DailyAppointments.Add(slot);
-                                }
-
-                                NoAppointmentsText.Visibility = selectedAppointments.Any() ? Visibility.Collapsed : Visibility.Visible;
-                            }
-
-                        }
-                        catch (Exception ex)
-                        {
-                            ContentDialog errorDialog = new ContentDialog
-                            {
-                                Title = "Cancellation Failed",
-                                Content = ex.Message,
-                                CloseButtonText = "OK",
-                                XamlRoot = this.Content.XamlRoot
-                            };
-                            await errorDialog.ShowAsync();
-                        }
-                    }
-                };
-
+                cancelBtn.Click += async (s, e) => await HandleAppointmentCancellation(dialog, appointment);
                 buttonRow.Children.Add(cancelBtn);
             }
             else
@@ -318,45 +152,71 @@ namespace Hospital.Views
                 buttonRow.Children.Add(disabledBtn);
             }
 
-            // Add the full row of buttons to the dialog
-            dialogContent.Children.Add(buttonRow);
-
-
-            dialog.Content = dialogContent;
-
-            await dialog.ShowAsync();
-
-            DailyScheduleList.SelectedItem = null;
+            return buttonRow;
         }
 
+        private async Task HandleAppointmentCancellation(ContentDialog dialog, AppointmentJointModel appointment)
+        {
+            dialog.Hide();
+            ContentDialog confirmDialog = new ContentDialog
+            {
+                Title = "Confirm Cancellation",
+                Content = "Are you sure you want to cancel this appointment?",
+                PrimaryButtonText = "Yes",
+                CloseButtonText = "No",
+                DefaultButton = ContentDialogButton.Close,
+                XamlRoot = this.Content.XamlRoot
+            };
+
+            var result = await confirmDialog.ShowAsync();
+            if (result == ContentDialogResult.Primary)
+            {
+                try
+                {
+                    await _viewModel.CancelAppointment(appointment);
+                    if (AppointmentsCalendar.SelectedDates.Any())
+                    {
+                        var selectedDate = AppointmentsCalendar.SelectedDates.First().DateTime.Date;
+                        _viewModel.UpdateDailySchedule(selectedDate);
+                        NoAppointmentsText.Visibility = _viewModel.HasAppointmentsOnDate(selectedDate) ? Visibility.Collapsed : Visibility.Visible;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ContentDialog errorDialog = new ContentDialog
+                    {
+                        Title = "Cancellation Failed",
+                        Content = ex.Message,
+                        CloseButtonText = "OK",
+                        XamlRoot = this.Content.XamlRoot
+                    };
+                    await errorDialog.ShowAsync();
+                }
+            }
+        }
 
         private async void RefreshAppointments()
         {
             try
             {
-                // Detach old event handlers to avoid duplicate calls
                 AppointmentsCalendar.CalendarViewDayItemChanging -= CalendarView_DayItemChanging;
                 AppointmentsCalendar.SelectedDatesChanged -= AppointmentsCalendar_SelectedDatesChanged;
 
-                // Reset visual and functional properties
-                AppointmentsCalendar.MinDate = DateTimeOffset.Now.Date;
-                AppointmentsCalendar.MaxDate = DateTimeOffset.Now.Date.AddMonths(1).AddDays(-1);
+                AppointmentsCalendar.MinDate = _viewModel.MinDate;
+                AppointmentsCalendar.MaxDate = _viewModel.MaxDate;
                 AppointmentsCalendar.SelectionMode = CalendarViewSelectionMode.Single;
                 AppointmentsCalendar.BorderBrush = new SolidColorBrush(Colors.Green);
                 AppointmentsCalendar.BorderThickness = new Thickness(2);
 
-                // Re-attach event handlers
                 AppointmentsCalendar.CalendarViewDayItemChanging += CalendarView_DayItemChanging;
                 AppointmentsCalendar.SelectedDatesChanged += AppointmentsCalendar_SelectedDatesChanged;
 
-                await LoadAppointmentsForPatient(1);
+                await _viewModel.LoadAppointmentsForPatient(1);
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error refreshing calendar: " + ex.Message);
             }
         }
-
-
     }
 }

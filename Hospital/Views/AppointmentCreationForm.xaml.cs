@@ -31,45 +31,24 @@ namespace Hospital.Views
     /// </summary>
     public sealed partial class AppointmentCreationForm : Window
     {
-
-        //Manager Models
-        private DepartmentManager _departmentManager;
-        private MedicalProcedureManager _procedureManager;
-        private DoctorManager _doctorManager;
-        private ShiftManager _shiftManager;
-        private AppointmentManager _appointmentManager;
-
         private AppointmentCreationFormViewModel _viewModel;
 
-        private AppointmentCreationForm(DepartmentManager departmentManagerModel, MedicalProcedureManager procedureManagerModel, DoctorManager doctorManagerModel, ShiftManager shiftManagerModel, AppointmentManager appointmentManagerModel)
+        private AppointmentCreationForm(AppointmentCreationFormViewModel viewModel)
         {
             this.InitializeComponent();
             this.StyleTitleBar();
-
-            //prepare view model
-            _departmentManager = departmentManagerModel;
-            _procedureManager = procedureManagerModel;
-            _doctorManager = doctorManagerModel;
-            _shiftManager = shiftManagerModel;
-            _appointmentManager = appointmentManagerModel;
-
-            //resize
+            _viewModel = viewModel;
+            AppointmentForm.DataContext = _viewModel;
+            _viewModel.Root = this.Content.XamlRoot;
             this.AppWindow.Resize(new(1000, 1400));
         }
 
-        public static async Task<AppointmentCreationForm> CreateAppointmentCreationForm(DepartmentManager departmentManagerModel, MedicalProcedureManager procedureManagerModel, DoctorManager doctorManagerModel, ShiftManager shiftManagerModel, AppointmentManager appointmentManagerModel)
+
+
+        public static Task<AppointmentCreationForm> CreateAppointmentCreationForm(
+            AppointmentCreationFormViewModel viewModel)
         {
-            AppointmentCreationForm form = new AppointmentCreationForm(departmentManagerModel, procedureManagerModel, doctorManagerModel, shiftManagerModel, appointmentManagerModel);
-
-
-            form._viewModel = await AppointmentCreationFormViewModel.CreateViewModel(form._departmentManager, form._procedureManager, form._doctorManager, form._shiftManager, form._appointmentManager);
-
-            //set data context
-            form.AppointmentForm.DataContext = form._viewModel;
-            form._viewModel.Root = form.Content.XamlRoot;
-
-            //return value
-            return form;
+            return Task.FromResult(new AppointmentCreationForm(viewModel));
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
@@ -79,121 +58,20 @@ namespace Hospital.Views
 
         private async void ConfirmButton_Click(object sender, RoutedEventArgs e)
         {
-            // Validate appointment input using the ViewModel method
-            if (!_viewModel.ValidateAppointment())
+            try
             {
-                var validationDialog = new ContentDialog
-                {
-                    Title = "Error",
-                    Content = "Please fill all the fields!",
-                    CloseButtonText = "OK"
-                };
-                validationDialog.XamlRoot = this.Content.XamlRoot;
-                await validationDialog.ShowAsync();
-                return;
+                await _viewModel.BookAppointment();
+                this.Close();
             }
-
-            // --------------------------------------------------------------
-
-            // Create a dialog to show all the details of the appointment
-            var dialogContent = new StackPanel
+            catch (Exception ex)
             {
-                Spacing = 15
-            };
-
-            // Department with formatting
-            dialogContent.Children.Add(new TextBlock
-            {
-                Text = $"Department: {_viewModel.SelectedDepartment.DepartmentName}",
-                FontSize = 18
-            });
-
-            // Procedure with formatting
-            dialogContent.Children.Add(new TextBlock
-            {
-                Text = $"Procedure: {_viewModel.SelectedProcedure.ProcedureName}",
-                FontSize = 18
-            });
-
-            // Doctor with formatting
-            dialogContent.Children.Add(new TextBlock
-            {
-                Text = $"Doctor: {_viewModel.SelectedDoctor?.DoctorName}",
-                FontSize = 18
-            });
-
-            // Date with formatting
-            dialogContent.Children.Add(new TextBlock
-            {
-                Text = $"Date: {_viewModel.SelectedCalendarDate?.ToString("MMMM dd, yyyy")}",
-                FontSize = 18
-            });
-
-            // Time with formatting
-            dialogContent.Children.Add(new TextBlock
-            {
-                Text = $"Time: {_viewModel.SelectedTime.ToString()}",
-                FontSize = 18
-            });
-
-            // Style the confirmation dialog
-            var confirmationDialog = new ContentDialog
-            {
-                Title = "Confirm Appointment",
-                Content = dialogContent,
-                CloseButtonText = "Cancel",
-                PrimaryButtonText = "Confirm",
-            };
-
-            // Setting the dialog's XamlRoot for better visual performance
-            confirmationDialog.XamlRoot = this.Content.XamlRoot;
-
-            // Show the dialog and capture the result
-            var result = await confirmationDialog.ShowAsync();
-
-            // ------------------------------------------------------------------
-
-
-            if (result == ContentDialogResult.Primary)
-            {
-                // Show appropriate dialog based on the result of booking the appointment
-                ContentDialog successDialog;
-
-                // User confirmed, now attempt to book the appointment
-                try
-                {
-                    await _viewModel.BookAppointment();
-
-                    successDialog = new ContentDialog
-                    {
-                        Title = "Success",
-                        Content = "Appointment created successfully!",
-                        CloseButtonText = "OK"
-                    };
-
-                }
-                catch (Exception ex)
-                {
-                    successDialog = new ContentDialog
-                    {
-                        Title = "Error",
-                        Content = "Error creating appointment!\n" + ex.Message,
-                        CloseButtonText = "OK"
-                    };
-                }
-
-                successDialog.XamlRoot = this.Content.XamlRoot;
-                await successDialog.ShowAsync();
-
-                this.Close(); // Close the current window after showing success/error
+                ShowErrorDialog(ex.Message);
             }
         }
-
 
         //this method is used to style the title bar of the window
         private void StyleTitleBar()
         {
-
             // Get the title bar of the app window.
             AppWindow m_Window = this.AppWindow;
             AppWindowTitleBar m_TitleBar = m_Window.TitleBar;
@@ -245,7 +123,6 @@ namespace Hospital.Views
             try
             {
                 await _viewModel.LoadAvailableTimeSlots();
-
             }
             catch (Exception ex)
             {
@@ -270,7 +147,6 @@ namespace Hospital.Views
                 //force a calendar reset in a dirty way can be left out
                 CalendarDatePicker.MinDate = DateTime.Today.AddDays(1);
                 CalendarDatePicker.MinDate = DateTime.Today;
-
             }
             catch (Exception ex)
             {
@@ -283,7 +159,6 @@ namespace Hospital.Views
                 errorDialog.XamlRoot = this.Content.XamlRoot;
                 await errorDialog.ShowAsync();
             }
-
         }
 
         private void CalendarView_DayItemChanging(CalendarView sender, CalendarViewDayItemChangingEventArgs args)
@@ -291,12 +166,21 @@ namespace Hospital.Views
             DateTimeOffset date = args.Item.Date.Date;
             if (_viewModel.HighlightedDates.Any(d => d.Date == date))
             {
-
                 args.Item.Background = new SolidColorBrush(Microsoft.UI.Colors.LightGreen); // Highlight date
                 args.Item.Foreground = new SolidColorBrush(Microsoft.UI.Colors.Black);      // Ensure text is readable
             }
         }
 
-
+        private async void ShowErrorDialog(string message)
+        {
+            ContentDialog errorDialog = new ContentDialog
+            {
+                Title = "Error",
+                Content = message,
+                CloseButtonText = "OK"
+            };
+            errorDialog.XamlRoot = this.Content.XamlRoot;
+            await errorDialog.ShowAsync();
+        }
     }
 }

@@ -8,7 +8,8 @@ namespace Hospital.Managers
     {
         List<DocumentModel> GetDocuments();
         Task AddDocumentToMedicalRecord(DocumentModel document);
-        void LoadDocuments(int medicalRecordId);
+        Task LoadDocuments(int medicalRecordId);
         Task DownloadDocuments(int patientId);
+        bool HasDocuments(int medicalRecordId);
     }
 }

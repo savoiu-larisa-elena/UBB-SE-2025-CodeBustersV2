@@ -174,5 +174,13 @@ namespace Hospital.Managers
         {
             throw new NotImplementedException();
         }
+
+        public bool CanCancelAppointment(AppointmentJointModel appointment)
+        {
+            if (appointment == null)
+                return false;
+
+            return (appointment.DateAndTime - DateTime.Now).TotalHours >= 24;
+        }
     }
 }

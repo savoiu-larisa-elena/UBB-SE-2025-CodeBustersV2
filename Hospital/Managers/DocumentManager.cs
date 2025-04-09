@@ -1,6 +1,7 @@
 ﻿//using ABI.System;
 using Hospital.DatabaseServices;
 using Hospital.Exceptions;
+using Hospital.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -9,25 +10,37 @@ using System.IO.Compression;
 using System.IO;
 using System.Threading.Tasks;
 using DocumentModel = Hospital.Models.DocumentModel;
-
+using System.Linq;
+using System.Text;
 
 namespace Hospital.Managers
 {
     public class DocumentManager : IDocumentManager
     {
-        public List<DocumentModel> Documents { get; private set; }
-
         private readonly IDocumentDatabaseService _documentDatabaseService;
+        private readonly IFileService _fileService;
+        private List<DocumentModel> _documents;
 
-        public DocumentManager(IDocumentDatabaseService documentDatabaseService)
+        public DocumentManager(IDocumentDatabaseService documentDatabaseService, IFileService fileService)
         {
             _documentDatabaseService = documentDatabaseService;
-            Documents = new List<DocumentModel>();
+            _fileService = fileService;
+            _documents = new List<DocumentModel>();
+        }
+
+        public async Task LoadDocuments(int medicalRecordId)
+        {
+            _documents = await _documentDatabaseService.GetDocumentsByMedicalRecordId(medicalRecordId);
         }
 
         public List<DocumentModel> GetDocuments()
         {
-            return Documents;
+            return _documents;
+        }
+
+        public bool HasDocuments(int medicalRecordId)
+        {
+            return _documents.Any(d => d.MedicalRecordId == medicalRecordId);
         }
 
         public async Task AddDocumentToMedicalRecord(DocumentModel document)
@@ -37,7 +50,7 @@ namespace Hospital.Managers
                 bool success = await _documentDatabaseService.UploadDocumentToDataBase(document).ConfigureAwait(false);
                 if (success)
                 {
-                    Documents.Add(document);
+                    _documents.Add(document);
                 }
             }
             catch (Exception exception)
@@ -46,62 +59,16 @@ namespace Hospital.Managers
             }
         }
 
-        public void LoadDocuments(int medicalRecordId)
-        {
-            Documents = _documentDatabaseService.GetDocumentsByMedicalRecordId(medicalRecordId).Result;
-        }
-
         public async Task DownloadDocuments(int patientId)
         {
-            List<string> filePaths = new List<string>();
-            foreach (DocumentModel document in Documents)
+            if (!_documents.Any())
             {
-                filePaths.Add(document.Files);
+                throw new DocumentNotFoundException("No documents available for download.");
             }
 
-            using (var memoryStream = new MemoryStream())
-            {
-                using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
-                {
-                    foreach (var filePath in filePaths)
-                    {
-                        if (System.IO.File.Exists(filePath))
-                        {
-                            var fileName = Path.GetFileName(filePath);
-                            var entry = archive.CreateEntry(fileName, CompressionLevel.Fastest);
-
-                            using (var entryStream = entry.Open())
-                            {
-                                using (var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
-                                {
-                                    await fileStream.CopyToAsync(entryStream);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            throw new DocumentNotFoundException($"Document not found at path: {filePath}");
-                        }
-                    }
-                }
-
-                memoryStream.Seek(0, SeekOrigin.Begin);
-                var zipFile = memoryStream.ToArray();
-
-                // was just :  string zipFileName = $"Documents_{DateTime.Now.ToString("yyyyMMddHHmmss")}.zip";
-                string zipFileName = GenerateZipFileName();
-                string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", zipFileName);
-                File.WriteAllBytes(path, zipFile);
-
-                Process.Start("explorer.exe", "/select, " + path);
-            }
-        }
-
-        // did not exist before
-        private string GenerateZipFileName()
-        {
-            string timestampFormat = "yyyyMMddHHmmss";
-            return $"Documents_{DateTime.Now.ToString(timestampFormat)}.zip";
+            var filePaths = _documents.Select(d => d.Files).ToList();
+            var zipFilePath = await _fileService.CreateAndSaveZipFile(filePaths);
+            Process.Start("explorer.exe", $"/select, {zipFilePath}");
         }
     }
 }

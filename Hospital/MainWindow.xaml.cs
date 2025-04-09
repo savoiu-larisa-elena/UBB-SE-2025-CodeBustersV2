@@ -22,6 +22,7 @@ using Hospital.ViewModels;
 using Windows.ApplicationModel.Appointments;
 using Hospital.Exceptions;
 using Hospital.Models;
+using Hospital.Services;
 
 namespace Hospital
 {
@@ -40,6 +41,8 @@ namespace Hospital
         private MedicalRecordsDatabaseService? medicalRecordsDatabaseService;
         private DocumentDatabaseService? documentService;
 
+        //Services
+        private IFileService? fileService;
 
         //ManagerModels 
         private DepartmentManager? DepartmentManager;
@@ -61,7 +64,16 @@ namespace Hospital
         {
             try
             {
-                AppointmentCreationForm appointmentCreationForm = await AppointmentCreationForm.CreateAppointmentCreationForm(DepartmentManager, ProcedureManager, DoctorManager, ShiftManager, AppointmentManager);
+                // First create the ViewModel
+                var viewModel = await AppointmentCreationFormViewModel.CreateViewModel(
+                    DepartmentManager, 
+                    ProcedureManager, 
+                    DoctorManager, 
+                    ShiftManager, 
+                    AppointmentManager);
+
+                // Then create the form with the ViewModel
+                AppointmentCreationForm appointmentCreationForm = await AppointmentCreationForm.CreateAppointmentCreationForm(viewModel);
                 appointmentCreationForm.Activate();
             }
             catch (Exception ex)
@@ -133,6 +145,9 @@ namespace Hospital
             medicalRecordsDatabaseService = new MedicalRecordsDatabaseService();
             documentService = new DocumentDatabaseService();
 
+            //setup services here
+            fileService = new FileService();
+
             //setup manager models here
             DepartmentManager = new DepartmentManager(departmentService);
             ProcedureManager = new MedicalProcedureManager(procedureService);
@@ -140,7 +155,7 @@ namespace Hospital
             ShiftManager = new ShiftManager(shiftService);
             AppointmentManager = new Managers.AppointmentManager(appointmentService);
             MedicalRecordManager = new MedicalRecordManager(medicalRecordsDatabaseService);
-            DocumentManager = new DocumentManager(documentService);
+            DocumentManager = new DocumentManager(documentService, fileService);
 
         }
 

@@ -15,7 +15,7 @@ Title="Register an appointment">
 
 
             <TextBlock Text="Department"/>
-            <ComboBox x:Name="DepartmentsComboBox" ItemsSource="{Binding Departments
+            <ComboBox x:Name="DepartmentsComboBox" ItemsSource="{Binding DepartmentsList
                 
                 }" 
                       SelectedItem="{Binding SelectedDepartment, Mode=TwoWay}" 
@@ -56,7 +56,7 @@ Title="Register an appointment">
                             <TextBlock Text="{Binding DoctorName}" FontWeight="Bold" Width="100"/>
 
                             <!-- Rating -->
-                            <TextBlock Text="{Binding Rating}" Foreground="DarkGray" Width="30"/>
+                            <TextBlock Text="{Binding DoctorRating}" Foreground="DarkGray" Width="30"/>
 
                             <!-- Star Icon -->
                             <FontIcon Glyph="&#xE734;" FontSize="14" Foreground="Gold"/>
@@ -68,10 +68,10 @@ Title="Register an appointment">
             <TextBlock Text="Date"/>
 
             <CalendarDatePicker x:Name="CalendarDatePicker"
-                                Date="{x:Bind _viewModel.SelectedCalendarDate, Mode=TwoWay}"
-                                MinDate="{Binding MinDate}"
-                                MaxDate="{Binding MaxDate}"
-                                IsEnabled="{Binding IsDateEnabled, Mode=OneWay}"
+                                    Date="{x:Bind _viewModel.SelectedCalendarDate, Mode=TwoWay}"
+                                    MinDate="{x:Bind _viewModel.MinimumDate, Mode=OneWay}"
+                                    MaxDate="{x:Bind _viewModel.MaximumDate, Mode=OneWay}"
+                                    IsEnabled="{x:Bind _viewModel.IsDateEnabled, Mode=OneWay}"
                                 CalendarViewDayItemChanging="CalendarView_DayItemChanging"
                         MinWidth="200" MaxWidth="850" HorizontalAlignment="Stretch" PlaceholderText="Select a date" />
 

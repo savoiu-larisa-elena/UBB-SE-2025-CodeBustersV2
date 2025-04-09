@@ -19,7 +19,6 @@ namespace Hospital.ViewModels
 
         private string _patientName;
         private string _doctorName;
-        //private DateTime _appointmentDate;
         private string _appointmentTime;
         private string _department;
         private string _conclusion;
@@ -46,9 +45,7 @@ namespace Hospital.ViewModels
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        int maximumNumberOfDocuments = 10;
         public ObservableCollection<string> Documents { get; private set; }
-
 
         public MedicalRecordCreationFormViewModel(IMedicalRecordManager medicalRecordManager, IDocumentManager documentManagerModel)
         {
@@ -62,36 +59,25 @@ namespace Hospital.ViewModels
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public async Task<int> CreateMedicalRecord(AppointmentJointModel detailedAppointment, string conclusion)
+        public async Task<int> CreateMedicalRecord(AppointmentJointModel appointment, string conclusion)
         {
-
             try
             {
-                detailedAppointment.Finished = true;
-                detailedAppointment.DateAndTime = DateTime.Now;
-
-
-                int medicalRecordId = await _medicalRecordManager.CreateMedicalRecord(detailedAppointment, conclusion);
-
-                return medicalRecordId;
+                return await _medicalRecordManager.CreateMedicalRecordWithAppointment(appointment, conclusion);
             }
             catch (Exception exception)
             {
                 Console.WriteLine($"Error creating medical record: {exception.Message}");
-                return -1;
+                throw;
             }
         }
 
-        public void AddDocument(int medicalRecordId, string path)
+        public async Task AddDocument(int medicalRecordId, string path)
         {
-            if (Documents.Count < maximumNumberOfDocuments)
-            {
-                DocumentModel document = new DocumentModel(0, medicalRecordId, path);
-                Documents.Add(path);
-                _ = _documentManager.AddDocumentToMedicalRecord(document);
-            }
+            var document = new DocumentModel(0, medicalRecordId, path);
+            await _documentManager.AddDocumentToMedicalRecord(document);
+            Documents.Add(path);
         }
-
 
         public string PatientName
         {

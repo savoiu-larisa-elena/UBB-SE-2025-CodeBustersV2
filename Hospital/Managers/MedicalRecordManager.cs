@@ -4,6 +4,7 @@ using Hospital.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection.Metadata;
 using System.Text;
@@ -131,6 +132,26 @@ namespace Hospital.Managers
         public async Task<List<MedicalRecordJointModel>> GetMedicalRecords()
         {
             return MedicalRecords;
+        }
+
+        public bool ValidateConclusion(string conclusion)
+        {
+            return !string.IsNullOrWhiteSpace(conclusion) && conclusion.Length <= 255;
+        }
+
+        public async Task<int> CreateMedicalRecordWithAppointment(AppointmentJointModel appointment, string conclusion)
+        {
+            if (!ValidateConclusion(conclusion))
+            {
+                throw new ValidationException("Conclusion must not be empty and cannot exceed 255 characters.");
+            }
+
+            // Update appointment status
+            appointment.Finished = true;
+            appointment.DateAndTime = DateTime.Now;
+
+            // Create medical record
+            return await CreateMedicalRecord(appointment, conclusion);
         }
     }
 }

@@ -11,5 +11,6 @@ namespace Hospital.Managers
         Task<int> CreateMedicalRecord(AppointmentJointModel detailedAppointment, string conclusion);
         Task LoadMedicalRecordsForDoctor(int doctorId);
         Task<List<MedicalRecordJointModel>> GetMedicalRecords();
+        Task<int> CreateMedicalRecordWithAppointment(AppointmentJointModel appointment, string conclusion);
     }
 }

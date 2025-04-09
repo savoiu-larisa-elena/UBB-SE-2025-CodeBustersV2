@@ -90,6 +90,10 @@ namespace Hospital.ViewModels
             Shifts = new List<ShiftModel>();
             ShiftDates = new ObservableCollection<DateTimeOffset>();
 
+            var (start, end) = _shiftManager.GetMonthlyCalendarRange();
+            MinimumDateForSelectingAppointment = start;
+            MaximumDateForSelectingAppointment = end;
+
             OpenDetailsCommand = new RelayCommand(OpenAppointmentForDoctor);
         }
 
@@ -110,17 +114,10 @@ namespace Hospital.ViewModels
             try
             {
                 await _appointmentManager.LoadAppointmentsForDoctor(DoctorId);
-                var appointments = _appointmentManager.Appointments;
-
-                Appointments.Clear();
-                foreach (var appointment in appointments)
-                {
-                    Appointments.Add(appointment);
-                }
+                Appointments = _appointmentManager.Appointments;
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"Error loading appointments: {exception.Message}");
                 throw new Exception($"Error loading appointments: {exception.Message}");
             }
         }
@@ -129,7 +126,7 @@ namespace Hospital.ViewModels
         {
             try
             {
-                await _shiftManager.LoadShifts(this.DoctorId);
+                await _shiftManager.LoadShifts(DoctorId);
                 Shifts = _shiftManager.GetShifts();
 
                 ShiftDates.Clear();
@@ -155,7 +152,6 @@ namespace Hospital.ViewModels
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"Error loading shifts: {exception.Message}");
                 throw new Exception($"Error loading shifts: {exception.Message}");
             }
         }
@@ -170,84 +166,17 @@ namespace Hospital.ViewModels
                 await _shiftManager.LoadShifts(DoctorId);
                 Shifts = _shiftManager.GetShifts();
 
-                var slots = GenerateTimeSlots(date);
-                foreach (var slot in slots)
+                var slots = _shiftManager.GenerateTimeSlots(date, Shifts, Appointments);
+                foreach (TimeSlotModel slot in slots) // Explicitly cast or ensure the type is TimeSlotModel
                 {
-                    DailySchedule.Add(slot);
+                    this.DailySchedule.Add(slot); // Prefix with 'this' to resolve SA1101
                 }
                 OnPropertyChanged(nameof(DailySchedule));
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"Database access failed: {exception.Message}");
+                throw new Exception($"Database access failed: {exception.Message}");
             }
-        }
-
-        private List<TimeSlotModel> GenerateTimeSlots(DateTime date)
-        {
-            List<TimeSlotModel> slots = new();
-            DateTime startTime = date.Date;
-            DateTime endTime = startTime.AddDays(1);
-            const string TimeFormat = "hh:mm tt";
-
-            var selectedAppointments = Appointments
-                .Where(a => a.DateAndTime.Date == date.Date)
-                .ToList();
-
-            var selectedShifts = Shifts
-                .Where(shift =>
-                {
-                    var shiftStart = shift.DateTime.Date + shift.StartTime;
-                    var shiftEnd = shift.DateTime.Date + shift.EndTime;
-
-                    if (shift.EndTime <= shift.StartTime)
-                        shiftEnd = shiftEnd.AddDays(1);
-
-                    return shiftStart < endTime && shiftEnd > startTime;
-                })
-                .ToList();
-
-            while (startTime < endTime)
-            {
-                var slot = new TimeSlotModel
-                {
-                    TimeSlot = startTime,
-                    Time = startTime.ToString(TimeFormat),
-                    Appointment = "",
-                    HighlightColor = new SolidColorBrush(Colors.Transparent)
-                };
-
-                SolidColorBrush highlightColor = new SolidColorBrush(Colors.Transparent);
-
-                bool isInShift = selectedShifts.Any(shift =>
-                {
-                    DateTime shiftStart = shift.DateTime.Date + shift.StartTime;
-                    DateTime shiftEnd = shift.DateTime.Date + shift.EndTime;
-                    if (shift.EndTime <= shift.StartTime)
-                        shiftEnd = shiftEnd.AddDays(1);
-
-                    return startTime >= shiftStart && startTime < shiftEnd;
-                });
-
-                var matchingAppointment = selectedAppointments.FirstOrDefault(appointment =>
-                    appointment.DateAndTime == startTime && isInShift);
-
-                if (matchingAppointment != null)
-                {
-                    slot.Appointment = matchingAppointment.ProcedureName;
-                    highlightColor = new SolidColorBrush(Colors.Orange);
-                }
-                else if (isInShift)
-                {
-                    highlightColor = new SolidColorBrush(Colors.Green);
-                }
-
-                slot.HighlightColor = highlightColor;
-                slots.Add(slot);
-                startTime = startTime.AddMinutes(TimeSlotIntervalInMinutes);
-            }
-
-            return slots;
         }
 
 
