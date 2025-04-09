@@ -72,8 +72,8 @@ Title="Register an appointment">
                                     MinDate="{x:Bind _viewModel.MinimumDate, Mode=OneWay}"
                                     MaxDate="{x:Bind _viewModel.MaximumDate, Mode=OneWay}"
                                     IsEnabled="{x:Bind _viewModel.IsDateEnabled, Mode=OneWay}"
-                                CalendarViewDayItemChanging="CalendarView_DayItemChanging"
-                        MinWidth="200" MaxWidth="850" HorizontalAlignment="Stretch" PlaceholderText="Select a date" />
+                                    CalendarViewDayItemChanging="CalendarView_DayItemChanging"
+                                    MinWidth="200" MaxWidth="850" HorizontalAlignment="Stretch" PlaceholderText="Select a date" />
 
             <TextBlock Text="Time"/>
             <ComboBox x:Name="HourComboBox" 

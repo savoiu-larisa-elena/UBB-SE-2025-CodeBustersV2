@@ -84,7 +84,7 @@ namespace Hospital.ViewModels
             {
                 _selectedCalendarDate = value;
                 OnPropertyChanged(nameof(SelectedCalendarDate));
-                // Task availableTimeSlotsTask = LoadAvailableTimeSlots();
+                Task availableTimeSlotsTask = LoadAvailableTimeSlots();
             }
         }
 
@@ -118,19 +118,19 @@ namespace Hospital.ViewModels
         }
 
         //disable controls
-        private bool _areProceduresAndDoctorsEnabled = false;
+        private bool _areProceduresAndDoctorsEnabled = true;
         public bool AreProceduresAndDoctorsEnabled
         {
             get => _areProceduresAndDoctorsEnabled;
             set
             {
-                _areProceduresAndDoctorsEnabled = true;
+                _areProceduresAndDoctorsEnabled = value;
                 OnPropertyChanged(nameof(AreProceduresAndDoctorsEnabled));
             }
         }
 
 
-        private bool _isDateEnabled = false;
+        private bool _isDateEnabled = true;
         public bool IsDateEnabled
         {
             get => _isDateEnabled;
@@ -142,7 +142,7 @@ namespace Hospital.ViewModels
         }
 
 
-        private bool _isTimeEnabled = false;
+        private bool _isTimeEnabled = true;
         public bool IsTimeEnabled
         {
             get => _isTimeEnabled;
@@ -214,7 +214,11 @@ namespace Hospital.ViewModels
             {
                 DoctorsList?.Add(doctor);
             }
-            AreProceduresAndDoctorsEnabled = true;
+
+            // Enable controls only if we have both procedures and doctors
+            AreProceduresAndDoctorsEnabled = ProceduresList?.Count > 0 && DoctorsList?.Count > 0;
+            IsDateEnabled = true;
+            IsTimeEnabled = true;
         }
 
         public async Task LoadDoctorSchedule()
@@ -222,9 +226,11 @@ namespace Hospital.ViewModels
             HighlightedDates.Clear();
             SelectedCalendarDate = null;
             IsDateEnabled = true;
+            IsTimeEnabled = true;
 
             if (SelectedDoctor == null)
             {
+                IsDateEnabled = true;
                 return;
             }
 
@@ -234,8 +240,8 @@ namespace Hospital.ViewModels
             if (_shiftsList.Count == 0)
             {
                 HoursList.Clear();
-                IsDateEnabled = false;
-                IsTimeEnabled = false;
+                IsDateEnabled = true;
+                IsTimeEnabled = true;
                 return;
             }
 
@@ -294,8 +300,10 @@ namespace Hospital.ViewModels
                 };
                 contentDialog.XamlRoot = Root;
                 await contentDialog.ShowAsync();
+                IsTimeEnabled = false;
                 return;
             }
+
             //get the appointments
             AppointmentsList = _appointmentManager.GetAppointments();
 
@@ -304,7 +312,6 @@ namespace Hospital.ViewModels
 
             //get the start time
             TimeSpan startTimeShift = shift.StartTime;
-
 
             TimeSpan endTimeShift;
             //handle the 24h shift -- can be changed
@@ -346,8 +353,6 @@ namespace Hospital.ViewModels
             while (currentTime + procedureDuration <= endTimeShift)
             {
                 availableTimeSlots.Add(currentTime.ToString(@"hh\:mm"));
-
-                // Move to the next possible slot (slot duration minutes later)
                 currentTime = currentTime.Add(TimeSpan.FromMinutes(ApplicationConfiguration.GetInstance().SlotDuration));
             }
 
@@ -358,13 +363,20 @@ namespace Hospital.ViewModels
                 HoursList.Add(timeSlot);
             }
 
-            if (HoursList.Count == 0)
+            // Enable time selection only if there are available slots
+            IsTimeEnabled = HoursList.Count > 0;
+            
+            // If there are no available slots, show a message
+            if (!IsTimeEnabled)
             {
-                IsTimeEnabled = false;
-            }
-            else
-            {
-                IsTimeEnabled = true;
+                ContentDialog noSlotsDialog = new ContentDialog
+                {
+                    Title = "No Available Slots",
+                    Content = "There are no available time slots for the selected date.",
+                    CloseButtonText = "Ok"
+                };
+                noSlotsDialog.XamlRoot = Root;
+                await noSlotsDialog.ShowAsync();
             }
         }
 

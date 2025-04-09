@@ -144,9 +144,10 @@ namespace Hospital.Views
                 await _viewModel.LoadDoctorSchedule();
                 await _viewModel.LoadAvailableTimeSlots();
 
-                //force a calendar reset in a dirty way can be left out
-                CalendarDatePicker.MinDate = DateTime.Today.AddDays(1);
-                CalendarDatePicker.MinDate = DateTime.Today;
+                // Reset the calendar date picker
+                CalendarDatePicker.Date = null;
+                CalendarDatePicker.MinDate = _viewModel.MinimumDate;
+                CalendarDatePicker.MaxDate = _viewModel.MaximumDate;
             }
             catch (Exception ex)
             {

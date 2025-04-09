@@ -1,4 +1,4 @@
-create database HospitalDB
+
 -------------------------------------
 -- Clean up existing tables (if any)
 -------------------------------------
@@ -323,7 +323,9 @@ VALUES
     ('2025-03-22', '16:00:00', '20:00:00'),
     ('2025-03-23', '08:00:00', '12:00:00'),
     ('2025-03-23', '12:00:00', '16:00:00'),
-    ('2025-03-23', '16:00:00', '20:00:00');
+    ('2025-03-23', '16:00:00', '20:00:00'),
+	('2025-04-09', '16:00:00', '20:00:00'),
+	('2025-04-10', '16:00:00', '20:00:00');
 
 
 -------------------------------------
@@ -339,7 +341,10 @@ VALUES
     (3, 6),  -- Dr. Alice Smith assigned to evening shift on March 22
     (4, 7),  -- Dr. Bob Johnson assigned to morning shift on March 23
     (4, 8),  -- Dr. Bob Johnson assigned to afternoon shift on March 23
-    (1, 9);  -- Dr. John Doe assigned to evening shift on March 23
+    (1, 9),  -- Dr. John Doe assigned to evening shift on March 23
+	(1, 10),
+	(1, 11),
+	(2, 10);
 
 INSERT INTO Schedules (DoctorId, ShiftId)
 VALUES
