@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Hospital.Exceptions
 {
-    class DocumentNotFoundException : Exception
+    public class DocumentNotFoundException : Exception
     {
         public DocumentNotFoundException(string message) : base(message) { }
     }

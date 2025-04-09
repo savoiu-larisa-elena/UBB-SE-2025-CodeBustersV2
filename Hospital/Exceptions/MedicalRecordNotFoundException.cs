@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace Hospital.Exceptions
 {
-    class MedicalRecordNotFoundException : Exception
+    public class MedicalRecordNotFoundException : Exception
     {
+        public MedicalRecordNotFoundException() : base() { }
+
         public MedicalRecordNotFoundException(string message) : base(message) { }
     }
 }

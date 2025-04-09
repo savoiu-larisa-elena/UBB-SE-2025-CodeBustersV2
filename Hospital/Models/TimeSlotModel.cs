@@ -10,11 +10,11 @@ namespace Hospital.Models
         public DateTime TimeSlot { get; set; }
         public string Time { get; set; }
         public string Appointment { get; set; }
-        public SolidColorBrush HighlightColor { get; set; }
+        public string HighlightStatus { get; set; }
 
         public TimeSlotModel()
         {
-            HighlightColor = new SolidColorBrush(Colors.Transparent);
+            HighlightStatus = "None";
         }
     }
 }

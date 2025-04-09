@@ -145,7 +145,7 @@ namespace Hospital.Views
                     await ShowAppointmentDialog(appointment);
                 }
             }
-            else if (slot.HighlightColor.Color == Colors.Green)
+            else if (slot.HighlightStatus == "Available")
             {
                 await ShowEmptySlotDialog(slot);
             }

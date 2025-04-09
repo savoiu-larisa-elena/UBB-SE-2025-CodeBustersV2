@@ -1,5 +1,4 @@
-﻿//using ABI.System;
-using Hospital.DatabaseServices;
+﻿using Hospital.DatabaseServices;
 using Hospital.Exceptions;
 using Hospital.Services;
 using System;

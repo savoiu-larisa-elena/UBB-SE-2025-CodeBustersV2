@@ -53,10 +53,9 @@ namespace Hospital.Managers
                 );
 
 
-                Appointments.Clear();
-                foreach (AppointmentJointModel appointment in appointments)
+                foreach (AppointmentJointModel appointment in Appointments)
                 {
-                    Appointments.Add(appointment);
+                    appointments.Add(appointment);
                 }
             }
             catch (Exception exception)
@@ -87,12 +86,23 @@ namespace Hospital.Managers
 
                 return true;
             }
+            catch (AppointmentNotFoundException)
+            {
+                throw;
+            }
+            catch (CancellationNotAllowedException)
+            {
+                throw;
+            }
+            catch (DatabaseOperationException)
+            {
+                throw;
+            }
             catch (Exception exception)
             {
-                //throw;
-                throw new Exception($"Error removing appointment {appointmentId}: {exception.Message}");
-
+                throw new Exception($"Unexpected error removing appointment {appointmentId}: {exception.Message}", exception);
             }
+
         }
 
         public async Task LoadAppointmentsForDoctor(int doctorId)
@@ -178,7 +188,9 @@ namespace Hospital.Managers
         public bool CanCancelAppointment(AppointmentJointModel appointment)
         {
             if (appointment == null)
+            {
                 return false;
+            }
 
             return (appointment.DateAndTime - DateTime.Now).TotalHours >= 24;
         }
