@@ -10,14 +10,21 @@ namespace Hospital.DatabaseServices
     public class DepartmentsDatabaseService : IDepartmentsDatabaseService
     {
         private readonly ApplicationConfiguration _configuration;
+        private readonly IDepartmentsDatabaseService _databaseService;
 
-        public DepartmentsDatabaseService()
+        public DepartmentsDatabaseService(IDepartmentsDatabaseService databaseService = null)
         {
             _configuration = ApplicationConfiguration.GetInstance();
+            _databaseService = databaseService ?? this;
+        }
+
+        public string GetConnectionString()
+        {
+            return _configuration.DatabaseConnection;
         }
 
         // This method will be used to get the departments from the database
-        public async Task<List<DepartmentModel>> GetDepartmentsFromDataBase()
+        public virtual async Task<List<DepartmentModel>> GetDepartmentsFromDataBase()
         {
             const string selectDepartmentsQuery = "SELECT * FROM Departments";
 
