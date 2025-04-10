@@ -93,6 +93,8 @@ namespace HospitalTest
             Assert.That(connectionString, Does.Contain("Database="));
         }
 
+=======
+        
         #endregion
 
         #region GetDepartmentsFromDataBase Tests
@@ -136,13 +138,12 @@ namespace HospitalTest
             {
                 Assert.That(result, Is.Not.Null, "Result should not be null");
                 Assert.That(result, Is.Not.Empty, "Result should not be empty");
-
                 // Check for duplicate department IDs
                 var departmentIds = new HashSet<int>();
                 foreach (var department in result)
                 {
-                    Assert.That(departmentIds.Add(department.DepartmentId),
-                        Is.True,
+                    Assert.That(departmentIds.Add(department.DepartmentId), 
+                        Is.True, 
                         $"Duplicate department ID found: {department.DepartmentId}");
                 }
             });
@@ -160,13 +161,13 @@ namespace HospitalTest
                 foreach (var department in result)
                 {
                     // Check department name format
-                    Assert.That(department.DepartmentName, Does.Match(@"^[A-Za-z\s\-]+$"),
+                    Assert.That(department.DepartmentName, Does.Match(@"^[A-Za-z\s\-]+$"), 
                         $"Department name '{department.DepartmentName}' contains invalid characters");
-
+                    
                     // Check department name length
-                    Assert.That(department.DepartmentName.Length, Is.AtLeast(2),
+                    Assert.That(department.DepartmentName.Length, Is.AtLeast(2), 
                         $"Department name '{department.DepartmentName}' is too short");
-                    Assert.That(department.DepartmentName.Length, Is.AtMost(100),
+                    Assert.That(department.DepartmentName.Length, Is.AtMost(100), 
                         $"Department name '{department.DepartmentName}' is too long");
                 }
             });
@@ -182,9 +183,9 @@ namespace HospitalTest
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.That(firstResult.Count, Is.EqualTo(secondResult.Count),
+                Assert.That(firstResult.Count, Is.EqualTo(secondResult.Count), 
                     "Number of departments should be consistent between calls");
-
+               
                 // Check if the order is consistent
                 for (int i = 0; i < firstResult.Count; i++)
                 {
@@ -206,7 +207,7 @@ namespace HospitalTest
             Assert.Multiple(() =>
             {
                 Assert.That(result, Is.Not.Null, "Result should not be null");
-                Assert.That((endTime - startTime).TotalSeconds, Is.LessThan(5),
+                Assert.That((endTime - startTime).TotalSeconds, Is.LessThan(5), 
                     "Query execution took too long");
             });
         }
@@ -216,7 +217,6 @@ namespace HospitalTest
         {
             // Note: Ensure test DB has Departments table truncated before running this.
             var result = await _service.GetDepartmentsFromDataBase();
-
             Assert.That(result, Is.Empty, "Expected empty result when there are no departments");
         }
 
@@ -311,10 +311,8 @@ public class TestDepartmentsDatabaseServiceTests
     {
         // Arrange
         var testService = new TestDepartmentsDatabaseService();
-
         // Act
         var result = await testService.GetDepartmentsFromDataBase();
-
         // Assert
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Count, Is.EqualTo(2));
@@ -330,7 +328,6 @@ public class TestDepartmentsDatabaseService : DepartmentsDatabaseService
     {
         // Simulate database access without actually connecting to a database
         await Task.Delay(10); // Simulate network delay
-
         // Return test data
         return new List<DepartmentModel>
         {
@@ -355,14 +352,14 @@ public class DirectDepartmentsDatabaseServiceTests
             new DepartmentModel(2, "Test Department 2")
         };
 
+        
         mockDatabaseService.Setup(ds => ds.GetDepartmentsFromDataBase())
             .ReturnsAsync(departments);
-
+        
         var service = new DepartmentsDatabaseService(mockDatabaseService.Object);
-
+        
         // Act
         var result = await service.GetDepartmentsFromDataBase();
-
         // Assert
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Count, Is.EqualTo(2));
