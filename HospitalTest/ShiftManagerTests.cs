@@ -36,7 +36,7 @@ namespace Hospital.Tests.Managers
 
             await _manager.LoadShifts(1);
 
-            Assert.AreEqual(1, _manager.GetShifts().Count);
+            Assert.That(_manager.GetShifts().Count, Is.EqualTo(1));
         }
 
         [Test]
@@ -51,7 +51,7 @@ namespace Hospital.Tests.Managers
 
             await _manager.LoadUpcomingDoctorDayshifts(1);
 
-            Assert.AreEqual(1, _manager.GetShifts().Count);
+            Assert.That(_manager.GetShifts().Count, Is.EqualTo(1));
         }
 
         [Test]
@@ -62,7 +62,7 @@ namespace Hospital.Tests.Managers
 
             var result = _manager.GetShifts();
 
-            Assert.AreEqual(1, result.Count);
+            Assert.That(result.Count, Is.EqualTo(1));
         }
 
         [Test]
@@ -74,7 +74,7 @@ namespace Hospital.Tests.Managers
 
             var result = _manager.GetShiftByDay(today);
 
-            Assert.AreEqual(today.Date, result.DateTime.Date);
+            Assert.That(result.DateTime.Date, Is.EqualTo(today.Date));
         }
 
         [Test]
@@ -90,8 +90,8 @@ namespace Hospital.Tests.Managers
             var expectedStart = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             var expectedEnd = expectedStart.AddMonths(1).AddDays(-1);
 
-            Assert.AreEqual(expectedStart, start.Date);
-            Assert.AreEqual(expectedEnd, end.Date);
+            Assert.That(start.Date, Is.EqualTo(expectedStart));
+            Assert.That(end.Date, Is.EqualTo(expectedEnd));
         }
 
         [Test]
@@ -104,13 +104,54 @@ namespace Hospital.Tests.Managers
 
             var result = _manager.GenerateTimeSlots(date, new List<ShiftModel> { shift }, new List<AppointmentJointModel> { appointment });
 
-            // Check slot count for 24h with 30 min intervals
-            Assert.AreEqual(48, result.Count);
+            Assert.That(result.Count, Is.EqualTo(48));
 
-            // Check slot at 9:00 AM is appointment
             var slotAt9 = result.FirstOrDefault(s => s.TimeSlot.Hour == 9 && s.TimeSlot.Minute == 0);
             Assert.NotNull(slotAt9);
-            Assert.AreEqual("MRI", slotAt9.Appointment);
+            Assert.That(slotAt9.Appointment, Is.EqualTo("MRI"));
         }
+
+        [Test]
+        public void GenerateTimeSlots_HandlesOvernightShiftCorrectly()
+        {
+            var date = new DateTime(2025, 4, 15);
+            var shift = new ShiftModel(1, date, new TimeSpan(22, 0, 0), new TimeSpan(2, 0, 0)); // 10PM to 2AM
+            var shifts = new List<ShiftModel> { shift };
+
+            var appointmentTime = date.AddHours(23);
+            var appointments = new List<AppointmentJointModel>
+    {
+        new AppointmentJointModel
+        {
+            DateAndTime = appointmentTime,
+            ProcedureName = "X-Ray"
+        }
+    };
+
+            var manager = new ShiftManager(null);
+
+            var result = manager.GenerateTimeSlots(date, shifts, appointments);
+
+            var slot = result.FirstOrDefault(s => s.TimeSlot == appointmentTime);
+            Assert.That(slot, Is.Not.Null);
+            Assert.That(slot.HighlightStatus, Is.EqualTo("Booked"));
+            Assert.That(slot.Appointment, Is.EqualTo("X-Ray"));
+        }
+
+        [Test]
+        public void GenerateTimeSlots_OutsideShift_HighlightIsNone()
+        {
+            var date = new DateTime(2025, 4, 15);
+            var shift = new ShiftModel(1, date, new TimeSpan(10, 0, 0), new TimeSpan(12, 0, 0)); // 10–12
+            var shifts = new List<ShiftModel> { shift };
+            var appointments = new List<AppointmentJointModel>();
+
+            var manager = new ShiftManager(null);
+            var slots = manager.GenerateTimeSlots(date, shifts, appointments);
+
+            var slotBefore = slots.FirstOrDefault(s => s.TimeSlot == date.AddHours(9));
+            Assert.That(slotBefore?.HighlightStatus, Is.EqualTo("None"));
+        }
+
     }
 }

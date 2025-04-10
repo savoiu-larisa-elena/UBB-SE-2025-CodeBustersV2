@@ -7,7 +7,7 @@ namespace Hospital.Managers
     public interface IMedicalRecordManager
     {
         Task LoadMedicalRecordsForPatient(int patientId);
-        MedicalRecordJointModel GetMedicalRecordById(int medicalRecordId);
+        Task<MedicalRecordJointModel> GetMedicalRecordById(int medicalRecordId);
         Task<int> CreateMedicalRecord(AppointmentJointModel detailedAppointment, string conclusion);
         Task LoadMedicalRecordsForDoctor(int doctorId);
         Task<List<MedicalRecordJointModel>> GetMedicalRecords();

@@ -48,17 +48,13 @@ namespace Hospital.Managers
             }
         }
 
-
-        public MedicalRecordJointModel GetMedicalRecordById(int medicalRecordId)
+        public async Task<MedicalRecordJointModel> GetMedicalRecordById(int medicalRecordId)
         {
             try
             {
-                MedicalRecordJointModel medicalRecord = _medicalRecordsDatabaseService
-                    .GetMedicalRecordById(medicalRecordId)
-                    .Result;
-                return medicalRecord;
+                return await _medicalRecordsDatabaseService.GetMedicalRecordById(medicalRecordId);
             }
-            catch (MedicalRecordNotFoundException medicalRecordNotFoundException)
+            catch (MedicalRecordNotFoundException)
             {
                 throw new MedicalRecordNotFoundException("No medical record found for the given id.");
             }
@@ -68,6 +64,7 @@ namespace Hospital.Managers
                 return null;
             }
         }
+
 
         public async Task<int> CreateMedicalRecord(AppointmentJointModel detailedAppointment, string conclusion)
         {
@@ -96,7 +93,7 @@ namespace Hospital.Managers
                     medicalRecord.MedicalRecordId = newMedicalRecordId;
 
                     // Optionally, retrieve the full record from the database (with join data) and add it.
-                    MedicalRecords.Add(GetMedicalRecordById(newMedicalRecordId));
+                    MedicalRecords.Add(await GetMedicalRecordById(newMedicalRecordId));
                 }
 
                 return newMedicalRecordId;
@@ -153,5 +150,6 @@ namespace Hospital.Managers
             // Create medical record
             return await CreateMedicalRecord(appointment, conclusion);
         }
+
     }
 }

@@ -45,7 +45,7 @@ namespace Hospital.Tests.Services
             _tempFiles.Add(zipPath);
 
             using var zip = ZipFile.OpenRead(zipPath);
-            Assert.AreEqual(1, zip.Entries.Count);
+            Assert.That(zip.Entries.Count, Is.EqualTo(1));
         }
 
         [Test]

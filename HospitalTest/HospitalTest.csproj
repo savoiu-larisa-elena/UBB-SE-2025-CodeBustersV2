@@ -1,14 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	  <TargetFramework>net8.0-windows10.0.19041</TargetFramework>
+	  <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
 	  <ImplicitUsings>enable</ImplicitUsings>
       <Nullable>enable</Nullable>
 
-    <IsPackable>false</IsPackable>
-	<CollectCoverage>true</CollectCoverage>
-    <IsTestProject>true</IsTestProject>
-    <Platforms>AnyCPU;x64</Platforms>
+      <IsPackable>false</IsPackable>
+	  <IsTestProject>true</IsTestProject>
+	  <CollectCoverage>true</CollectCoverage>
+	  <CoverletOutputFormat>cobertura</CoverletOutputFormat>
+      <Platforms>AnyCPU;x64</Platforms>
+	  <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+	  <WarningsNotAsErrors>SA*</WarningsNotAsErrors>
+	  <RunAnalyzers>false</RunAnalyzers>
   </PropertyGroup>
 
   <ItemGroup>

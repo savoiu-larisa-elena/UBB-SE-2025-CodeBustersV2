@@ -48,15 +48,9 @@ namespace Hospital.Managers
                     .GetAppointmentsForPatient(patientId)
                     .ConfigureAwait(false);
 
-                Appointments = new List<AppointmentJointModel>(
-                    appointments.Where(appointment => appointment.DateAndTime > DateTime.Now && !appointment.Finished)
-                );
-
-
-                foreach (AppointmentJointModel appointment in Appointments)
-                {
-                    appointments.Add(appointment);
-                }
+                Appointments = appointments
+                    .Where(a => a.DateAndTime > DateTime.Now && !a.Finished)
+                    .ToList();
             }
             catch (Exception exception)
             {
@@ -180,7 +174,7 @@ namespace Hospital.Managers
             }
         }
 
-        internal static async Task MarkAppointmentAsCompletedInDatabase(int appointmentId)
+        public static async Task MarkAppointmentAsCompletedInDatabase(int appointmentId)
         {
             throw new NotImplementedException();
         }

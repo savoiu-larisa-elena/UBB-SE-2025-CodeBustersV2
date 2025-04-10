@@ -38,8 +38,8 @@ namespace Hospital.Tests.Managers
 
             await _departmentManager.LoadDepartments();
 
-            Assert.AreEqual(2, DepartmentManager.Departments.Count);
-            Assert.AreEqual("Cardiology", DepartmentManager.Departments[0].DepartmentName);
+            Assert.That(DepartmentManager.Departments.Count, Is.EqualTo(2));
+            Assert.That(DepartmentManager.Departments[0].DepartmentName, Is.EqualTo("Cardiology"));
         }
 
         [Test]
@@ -49,8 +49,8 @@ namespace Hospital.Tests.Managers
 
             var result = _departmentManager.GetDepartments();
 
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual("TestDept", result[0].DepartmentName);
+            Assert.That(result.Count, Is.EqualTo(1));
+            Assert.That(result[0].DepartmentName, Is.EqualTo("TestDept"));
         }
     }
 }

@@ -38,8 +38,8 @@ namespace Hospital.Tests.Managers
 
             await _manager.LoadProceduresByDepartmentId(departmentId);
 
-            Assert.AreEqual(2, MedicalProcedureManager.Procedures.Count);
-            Assert.AreEqual("MRI", MedicalProcedureManager.Procedures[0].ProcedureName);
+            Assert.That(MedicalProcedureManager.Procedures.Count, Is.EqualTo(2));
+            Assert.That(MedicalProcedureManager.Procedures[0].ProcedureName, Is.EqualTo("MRI"));
         }
 
         [Test]
@@ -51,7 +51,7 @@ namespace Hospital.Tests.Managers
 
             await _manager.LoadProceduresByDepartmentId(departmentId);
 
-            Assert.AreEqual(0, MedicalProcedureManager.Procedures.Count);
+            Assert.That(MedicalProcedureManager.Procedures.Count, Is.EqualTo(0));
         }
 
         [Test]
@@ -61,8 +61,8 @@ namespace Hospital.Tests.Managers
 
             var result = _manager.GetProcedures();
 
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual("X-Ray", result[0].ProcedureName);
+            Assert.That(result.Count, Is.EqualTo(1));
+            Assert.That(result[0].ProcedureName, Is.EqualTo("X-Ray"));
         }
     }
 }
