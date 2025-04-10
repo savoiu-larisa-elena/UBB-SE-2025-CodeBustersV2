@@ -20,6 +20,12 @@ namespace Hospital.DatabaseServices
 
         public async Task<bool> AddAppointmentToDataBase(AppointmentModel appointment)
         {
+            // Validate that the appointment is not in the past
+            if (appointment.DateAndTime < DateTime.Now)
+            {
+                throw new InvalidAppointmentException("Cannot create appointments in the past");
+            }
+
             const string insertAppointmentQuery =
               "INSERT INTO Appointments (PatientId, DoctorId, DateAndTime, ProcedureId, Finished) " +
               "VALUES (@PatientId, @DoctorId, @DateAndTime, @ProcedureId, @Finished)";
