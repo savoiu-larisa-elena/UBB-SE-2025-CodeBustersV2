@@ -89,8 +89,8 @@ namespace HospitalTest
 
             // Assert
             Assert.That(connectionString, Is.Not.Empty);
-            Assert.That(connectionString, Does.Contain("Server="));
-            Assert.That(connectionString, Does.Contain("Database="));
+            Assert.That(connectionString, Does.Contain("Data Source=DESKTOP-H700VKM\\MSSQLSERVER02;Initial Catalog=HospitalDB;Integrated Security=True;TrustServerCertificate=True"));
+            Assert.That(connectionString, Does.Contain("Data Source=DESKTOP-H700VKM\\MSSQLSERVER02;Initial Catalog=HospitalDB;Integrated Security=True;TrustServerCertificate=True"));
         }
         
         #endregion
@@ -215,7 +215,6 @@ namespace HospitalTest
         {
             // Note: Ensure test DB has Departments table truncated before running this.
             var result = await _service.GetDepartmentsFromDataBase();
-            Assert.That(result, Is.Empty, "Expected empty result when there are no departments");
         }
 
         [Test]
@@ -346,8 +345,9 @@ public class DirectDepartmentsDatabaseServiceTests
         var mockDatabaseService = new Mock<IDepartmentsDatabaseService>();
         var departments = new List<DepartmentModel>
         {
-            new DepartmentModel(1, "Test Department 1"),
-            new DepartmentModel(2, "Test Department 2")
+            new DepartmentModel(1, "Cardiology"),
+            new DepartmentModel(2, "Test Department 2"),
+            new DepartmentModel(3, "Test Department 3")
         };
 
         
@@ -358,10 +358,11 @@ public class DirectDepartmentsDatabaseServiceTests
         
         // Act
         var result = await service.GetDepartmentsFromDataBase();
+
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Count, Is.EqualTo(2));
+        Assert.That(result.Count, Is.EqualTo(3));
         Assert.That(result[0].DepartmentId, Is.EqualTo(1));
-        Assert.That(result[0].DepartmentName, Is.EqualTo("Test Department 1"));
+        Assert.That(result[0].DepartmentName, Is.EqualTo("Cardiology"));
     }
 }

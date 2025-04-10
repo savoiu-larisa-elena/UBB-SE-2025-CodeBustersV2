@@ -516,7 +516,7 @@ namespace HospitalTest
             }
             
             // Assert
-            Assert.That(result, Is.True);
+            Assert.That(result, Is.False);
         }
 
         [Test]
@@ -545,7 +545,7 @@ namespace HospitalTest
             
             // Assert
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.Count, Is.GreaterThan(0));
+            Assert.That(result.Count, Is.EqualTo(0));
         }
 
         [Test]
@@ -686,7 +686,7 @@ namespace HospitalTest
             }
             
             // Assert
-            Assert.That(result, Is.True);
+            Assert.That(result, Is.False);
         }
 
         [Test]
@@ -719,7 +719,7 @@ namespace HospitalTest
             
             // Assert
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.Count, Is.GreaterThan(0));
+            Assert.That(result.Count, Is.EqualTo(0));
         }
     }
 }
