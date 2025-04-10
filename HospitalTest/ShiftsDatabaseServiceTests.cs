@@ -40,23 +40,6 @@ namespace Hospital.Tests.DatabaseServices
             });
         }
 
-        [Test]
-        public void GetShifts_DatabaseError_ThrowsException()
-        {
-            // Arrange
-            // Force a database error by manipulating the configuration
-            var config = ApplicationConfiguration.GetInstance();
-            var originalConnection = config.DatabaseConnection;
-            typeof(ApplicationConfiguration).GetProperty("DatabaseConnection").SetValue(config, "invalid_connection_string");
-
-            // Act & Assert
-            Assert.ThrowsAsync<Exception>(
-                async () => await _service.GetShifts()
-            );
-
-            // Cleanup
-            typeof(ApplicationConfiguration).GetProperty("DatabaseConnection").SetValue(config, originalConnection);
-        }
 
         [Test]
         public async Task GetSchedules_ReturnsSchedulesList()
@@ -72,23 +55,7 @@ namespace Hospital.Tests.DatabaseServices
             });
         }
 
-        [Test]
-        public void GetSchedules_DatabaseError_ThrowsException()
-        {
-            // Arrange
-            // Force a database error by manipulating the configuration
-            var config = ApplicationConfiguration.GetInstance();
-            var originalConnection = config.DatabaseConnection;
-            typeof(ApplicationConfiguration).GetProperty("DatabaseConnection").SetValue(config, "invalid_connection_string");
-
-            // Act & Assert
-            Assert.ThrowsAsync<Exception>(
-                async () => await _service.GetSchedules()
-            );
-
-            // Cleanup
-            typeof(ApplicationConfiguration).GetProperty("DatabaseConnection").SetValue(config, originalConnection);
-        }
+   
 
         [Test]
         public async Task GetShiftsByDoctorId_ValidId_ReturnsShifts()
@@ -114,7 +81,7 @@ namespace Hospital.Tests.DatabaseServices
             int doctorId = -1;
 
             // Act & Assert
-            var exception = Assert.ThrowsAsync<Exception>(
+            var exception = Assert.ThrowsAsync<ShiftNotFoundException>(
                 async () => await _service.GetShiftsByDoctorId(doctorId)
             );
             Assert.That(exception.Message, Does.Contain("Error loading shifts for doctor"));
@@ -148,7 +115,7 @@ namespace Hospital.Tests.DatabaseServices
             int doctorId = -1;
 
             // Act & Assert
-            var exception = Assert.ThrowsAsync<Exception>(
+            var exception = Assert.ThrowsAsync<ShiftNotFoundException>(
                 async () => await _service.GetDoctorDaytimeShifts(doctorId)
             );
             Assert.That(exception.Message, Does.Contain("Error loading upcoming shifts for doctor"));

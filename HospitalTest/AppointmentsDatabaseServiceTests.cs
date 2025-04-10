@@ -154,7 +154,7 @@ namespace Hospital.Tests.DatabaseServices
         {
             // Arrange
             int doctorId = 1;
-            DateTime date = DateTime.Today;
+            DateTime date = DateTime.Now.AddDays(+1);
 
             // Act
             var result = await _service.GetAppointmentsByDoctorAndDate(doctorId, date);
@@ -269,10 +269,9 @@ namespace Hospital.Tests.DatabaseServices
             int invalidId = -1;
 
             // Act
-            var result = await _service.RemoveAppointmentFromDataBase(invalidId);
-
-            // Assert
-            Assert.That(result, Is.False);
+            Assert.ThrowsAsync<DatabaseOperationException>(
+                async () => await _service.RemoveAppointmentFromDataBase(invalidId)
+            );
         }
 
         [Test]

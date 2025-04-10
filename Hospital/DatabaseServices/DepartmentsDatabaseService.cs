@@ -20,7 +20,6 @@ namespace Hospital.DatabaseServices
         public async Task<List<DepartmentModel>> GetDepartmentsFromDataBase()
         {
             const string selectDepartmentsQuery = "SELECT * FROM Departments";
-
             try
             {
                 using SqlConnection sqlConnection = new SqlConnection(_configuration.DatabaseConnection);

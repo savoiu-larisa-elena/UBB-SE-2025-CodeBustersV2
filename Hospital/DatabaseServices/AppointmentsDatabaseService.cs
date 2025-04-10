@@ -12,7 +12,6 @@ namespace Hospital.DatabaseServices
     public class AppointmentsDatabaseService : IAppointmentsDatabaseService
     {
         private readonly ApplicationConfiguration _configuration;
-
         public AppointmentsDatabaseService()
         {
             _configuration = ApplicationConfiguration.GetInstance();
@@ -224,6 +223,14 @@ namespace Hospital.DatabaseServices
 
         public async Task<List<AppointmentJointModel>> GetAppointmentsByDoctorAndDate(int doctorId, DateTime date)
         {
+            if(doctorId < 0)
+            {
+                throw new DatabaseOperationException($"Doctor ID {doctorId} is invalid.");
+            }
+            if(date < DateTime.Now)
+            {
+                throw new InvalidAppointmentException($"Date {date} is in the past.");
+            }
             const string selectAppointmentsByDoctorAndDateQuery = @"SELECT 
                     a.AppointmentId,
                     a.Finished,
@@ -478,7 +485,7 @@ namespace Hospital.DatabaseServices
 
                 if (appointmentExists == 0)
                 {
-                    Console.WriteLine($"Appointment ID {appointmentId} does NOT exist in DB. Throwing exception.");
+                    throw new DatabaseOperationException($"Appointment ID {appointmentId} does NOT exist in DB. Throwing exception.");
                     throw new AppointmentNotFoundException($"Appointment {appointmentId} not found.");
                 }
 
@@ -498,18 +505,18 @@ namespace Hospital.DatabaseServices
                 }
                 else
                 {
-                    Console.WriteLine($"Deletion failed for appointment ID {appointmentId}. No rows affected.");
+                    throw new DatabaseOperationException($"Deletion failed for appointment ID {appointmentId}. No rows affected.");
                     return false;
                 }
             }
             catch (SqlException sqlException)
             {
-                Console.WriteLine($"SQL Error while deleting appointment: {sqlException.Message}");
+                throw new DatabaseOperationException($"SQL Error while deleting appointment: {sqlException.Message}");
                 return false;
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"General Error while deleting appointment: {exception.Message}");
+                throw new DatabaseOperationException($"General Error while deleting appointment: {exception.Message}");
                 return false;
             }
         }
