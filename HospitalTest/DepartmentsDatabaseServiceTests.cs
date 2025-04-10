@@ -92,8 +92,6 @@ namespace HospitalTest
             Assert.That(connectionString, Does.Contain("Server="));
             Assert.That(connectionString, Does.Contain("Database="));
         }
-
-=======
         
         #endregion
 
