@@ -48,13 +48,11 @@ namespace Hospital.DatabaseServices
             }
             catch (SqlException sqlException)
             {
-                Console.WriteLine($"SQL Error: {sqlException.Message}");
-                return -1;
+                throw new DatabaseOperationException($"SQL Error: {sqlException.Message}");
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"General Error: {exception.Message}");
-                return -1;
+                throw new DatabaseOperationException($"General Error: {exception.Message}");
             }
         }
 
@@ -126,13 +124,11 @@ namespace Hospital.DatabaseServices
             }
             catch (SqlException sqlException)
             {
-                Console.WriteLine($"SQL Error: {sqlException.Message}");
-                return null;
+                throw new MedicalRecordNotFoundException($"SQL Error: {sqlException.Message}");
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"General Error: {exception.Message}");
-                return null;
+                throw new MedicalRecordNotFoundException($"General Error: {exception.Message}");
             }
         }
 
@@ -201,13 +197,11 @@ namespace Hospital.DatabaseServices
             }
             catch (SqlException sqlException)
             {
-                Console.WriteLine($"SQL Error: {sqlException.Message}");
-                return null;
+                throw new MedicalRecordNotFoundException($"SQL Error: {sqlException.Message}");
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"General Error: {exception.Message}");
-                return null;
+                throw new MedicalRecordNotFoundException($"General Error: {exception.Message}");
             }
         }
 
@@ -276,13 +270,11 @@ namespace Hospital.DatabaseServices
             }
             catch (SqlException sqlException)
             {
-                Console.WriteLine($"SQL Error: {sqlException.Message}");
-                return null;
+                throw new MedicalRecordNotFoundException($"SQL Error: {sqlException.Message}");
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"General Error: {exception.Message}");
-                return null;
+                throw new MedicalRecordNotFoundException($"General Error: {exception.Message}");
             }
         }
     }

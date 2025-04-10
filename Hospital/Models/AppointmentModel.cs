@@ -26,5 +26,14 @@ namespace Hospital.Models
         }
 
         public AppointmentModel() { }
+
+        public AppointmentModel(int appointmentId, int patientId, int doctorId, DateTime dateAndTime, bool finished)
+        {
+            AppointmentId = appointmentId;
+            PatientId = patientId;
+            DoctorId = doctorId;
+            DateAndTime = dateAndTime;
+            Finished = finished;
+        }
     }
 }

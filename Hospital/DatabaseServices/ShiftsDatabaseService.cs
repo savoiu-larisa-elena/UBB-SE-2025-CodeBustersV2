@@ -1,4 +1,5 @@
 ﻿using Hospital.Configs;
+using Hospital.Exceptions;
 using Hospital.Models;
 using Microsoft.Data.SqlClient;
 using System;
@@ -41,11 +42,11 @@ namespace Hospital.DatabaseServices
             }
             catch (SqlException sqlException)
             {
-                throw new Exception($"Database error loading shifts: {sqlException.Message}");
+                throw new ShiftNotFoundException($"Database error loading shifts: {sqlException.Message}");
             }
             catch (Exception exception)
             {
-                throw new Exception($"Error loading shifts: {exception.Message}");
+                throw new ShiftNotFoundException($"Error loading shifts: {exception.Message}");
             }
 
             return shifts;
@@ -71,13 +72,11 @@ namespace Hospital.DatabaseServices
             }
             catch (SqlException sqlException)
             {
-                Console.WriteLine($"SQL Error: {sqlException.Message}");
-                throw;
+                throw new ShiftNotFoundException($"SQL Error: {sqlException.Message}");
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"General Error: {exception.Message}");
-                throw;
+                throw new ShiftNotFoundException($"General Error: {exception.Message}");
             }
 
             return schedules;
@@ -85,6 +84,10 @@ namespace Hospital.DatabaseServices
 
         public async Task<List<ShiftModel>> GetShiftsByDoctorId(int doctorId)
         {
+            if (doctorId <= 0)
+            {
+                throw new ShiftNotFoundException("Error loading shifts for doctor.");
+            }
             const string selectShiftsByDoctorIdQuery = @"
             SELECT s.ShiftId, s.Date, s.StartTime, s.EndTime
             FROM Shifts s
@@ -114,11 +117,11 @@ namespace Hospital.DatabaseServices
             }
             catch (SqlException sqlException)
             {
-                throw new Exception($"Database error loading shifts for doctor {doctorId}: {sqlException.Message}");
+                throw new ShiftNotFoundException($"Database error loading shifts for doctor {doctorId}: {sqlException.Message}");
             }
             catch (Exception exception)
             {
-                throw new Exception($"Error loading shifts for doctor {doctorId}: {exception.Message}");
+                throw new ShiftNotFoundException($"Error loading shifts for doctor {doctorId}");
             }
 
             return shifts;
@@ -126,6 +129,10 @@ namespace Hospital.DatabaseServices
 
         public async Task<List<ShiftModel>> GetDoctorDaytimeShifts(int doctorId)
         {
+            if(doctorId <= 0)
+            {
+                throw new ShiftNotFoundException("Error loading upcoming shifts for doctor.");
+            }
             const string selectDaytimeShiftByDoctorIdQuery = @"
             SELECT s.ShiftId, s.Date, s.StartTime, s.EndTime
             FROM Shifts s
@@ -156,11 +163,11 @@ namespace Hospital.DatabaseServices
             }
             catch (SqlException sqlException)
             {
-                throw new Exception($"Database error loading upcoming shifts for doctor {doctorId}: {sqlException.Message}");
+                throw new ShiftNotFoundException($"Database error loading upcoming shifts for doctor {doctorId}: {sqlException.Message}");
             }
             catch (Exception exception)
             {
-                throw new Exception($"Error loading upcoming shifts for doctor {doctorId}: {exception.Message}");
+                throw new ShiftNotFoundException($"Error loading upcoming shifts for doctor {doctorId}: {exception.Message}");
             }
 
             return shifts;

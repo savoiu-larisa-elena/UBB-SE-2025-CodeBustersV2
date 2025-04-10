@@ -93,6 +93,8 @@ namespace HospitalTest
             Assert.That(connectionString, Does.Contain("Database="));
         }
 
+=======
+        
         #endregion
 
         #region GetDepartmentsFromDataBase Tests
@@ -136,7 +138,6 @@ namespace HospitalTest
             {
                 Assert.That(result, Is.Not.Null, "Result should not be null");
                 Assert.That(result, Is.Not.Empty, "Result should not be empty");
-                
                 // Check for duplicate department IDs
                 var departmentIds = new HashSet<int>();
                 foreach (var department in result)
@@ -184,7 +185,7 @@ namespace HospitalTest
             {
                 Assert.That(firstResult.Count, Is.EqualTo(secondResult.Count), 
                     "Number of departments should be consistent between calls");
-                
+               
                 // Check if the order is consistent
                 for (int i = 0; i < firstResult.Count; i++)
                 {
@@ -216,7 +217,6 @@ namespace HospitalTest
         {
             // Note: Ensure test DB has Departments table truncated before running this.
             var result = await _service.GetDepartmentsFromDataBase();
-
             Assert.That(result, Is.Empty, "Expected empty result when there are no departments");
         }
 
@@ -311,10 +311,8 @@ public class TestDepartmentsDatabaseServiceTests
     {
         // Arrange
         var testService = new TestDepartmentsDatabaseService();
-        
         // Act
         var result = await testService.GetDepartmentsFromDataBase();
-        
         // Assert
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Count, Is.EqualTo(2));
@@ -330,7 +328,6 @@ public class TestDepartmentsDatabaseService : DepartmentsDatabaseService
     {
         // Simulate database access without actually connecting to a database
         await Task.Delay(10); // Simulate network delay
-        
         // Return test data
         return new List<DepartmentModel>
         {
@@ -354,6 +351,7 @@ public class DirectDepartmentsDatabaseServiceTests
             new DepartmentModel(1, "Test Department 1"),
             new DepartmentModel(2, "Test Department 2")
         };
+
         
         mockDatabaseService.Setup(ds => ds.GetDepartmentsFromDataBase())
             .ReturnsAsync(departments);
@@ -362,7 +360,6 @@ public class DirectDepartmentsDatabaseServiceTests
         
         // Act
         var result = await service.GetDepartmentsFromDataBase();
-        
         // Assert
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Count, Is.EqualTo(2));
