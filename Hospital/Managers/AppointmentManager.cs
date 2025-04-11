@@ -180,7 +180,7 @@ namespace Hospital.Managers
             }
         }
 
-        internal static async Task MarkAppointmentAsCompletedInDatabase(int appointmentId)
+        public static async Task MarkAppointmentAsCompletedInDatabase(int appointmentId)
         {
             throw new NotImplementedException();
         }

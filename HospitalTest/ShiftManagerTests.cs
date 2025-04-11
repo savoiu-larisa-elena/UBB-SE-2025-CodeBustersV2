@@ -104,13 +104,54 @@ namespace Hospital.Tests.Managers
 
             var result = _manager.GenerateTimeSlots(date, new List<ShiftModel> { shift }, new List<AppointmentJointModel> { appointment });
 
-            // Check slot count for 24h with 30 min intervals
             Assert.That(result.Count, Is.EqualTo(48));
 
-            // Check slot at 9:00 AM is appointment
             var slotAt9 = result.FirstOrDefault(s => s.TimeSlot.Hour == 9 && s.TimeSlot.Minute == 0);
             Assert.NotNull(slotAt9);
             Assert.That(slotAt9.Appointment, Is.EqualTo("MRI"));
         }
+
+        [Test]
+        public void GenerateTimeSlots_HandlesOvernightShiftCorrectly()
+        {
+            var date = new DateTime(2025, 4, 15);
+            var shift = new ShiftModel(1, date, new TimeSpan(22, 0, 0), new TimeSpan(2, 0, 0)); // 10PM to 2AM
+            var shifts = new List<ShiftModel> { shift };
+
+            var appointmentTime = date.AddHours(23);
+            var appointments = new List<AppointmentJointModel>
+    {
+        new AppointmentJointModel
+        {
+            DateAndTime = appointmentTime,
+            ProcedureName = "X-Ray"
+        }
+    };
+
+            var manager = new ShiftManager(null);
+
+            var result = manager.GenerateTimeSlots(date, shifts, appointments);
+
+            var slot = result.FirstOrDefault(s => s.TimeSlot == appointmentTime);
+            Assert.That(slot, Is.Not.Null);
+            Assert.That(slot.HighlightStatus, Is.EqualTo("Booked"));
+            Assert.That(slot.Appointment, Is.EqualTo("X-Ray"));
+        }
+
+        [Test]
+        public void GenerateTimeSlots_OutsideShift_HighlightIsNone()
+        {
+            var date = new DateTime(2025, 4, 15);
+            var shift = new ShiftModel(1, date, new TimeSpan(10, 0, 0), new TimeSpan(12, 0, 0)); // 10–12
+            var shifts = new List<ShiftModel> { shift };
+            var appointments = new List<AppointmentJointModel>();
+
+            var manager = new ShiftManager(null);
+            var slots = manager.GenerateTimeSlots(date, shifts, appointments);
+
+            var slotBefore = slots.FirstOrDefault(s => s.TimeSlot == date.AddHours(9));
+            Assert.That(slotBefore?.HighlightStatus, Is.EqualTo("None"));
+        }
+
     }
 }

@@ -88,6 +88,35 @@ namespace Hospital.Tests.Managers
         }
 
         [Test]
+        public async Task AddDocumentToMedicalRecord_SuccessfulUpload_AddsDocument()
+        {
+            var doc = new DocumentModel(1, 1, @"C:\doc1.pdf");
+
+            _mockDbService.Setup(s => s.UploadDocumentToDataBase(doc))
+                                .ReturnsAsync(true);
+
+            await _manager.AddDocumentToMedicalRecord(doc);
+
+            var result = _manager.GetDocuments();
+            Assert.That(result, Contains.Item(doc));
+        }
+
+        [Test]
+        public async Task AddDocumentToMedicalRecord_UploadThrowsException_HandledGracefully()
+        {
+            var doc = new DocumentModel(10, 10, @"C:\doc10.pdf");
+
+            _mockDbService.Setup(s => s.UploadDocumentToDataBase(doc))
+                                .ThrowsAsync(new Exception("Upload failed"));
+
+            await _manager.AddDocumentToMedicalRecord(doc);
+
+            var result = _manager.GetDocuments();
+            Assert.That(result, Is.Empty);
+        }
+
+
+        [Test]
         public void DownloadDocuments_NoDocuments_ThrowsException()
         {
             Assert.ThrowsAsync<DocumentNotFoundException>(() => _manager.DownloadDocuments(1));
