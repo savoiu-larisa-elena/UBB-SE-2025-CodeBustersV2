@@ -40,11 +40,11 @@ namespace Hospital.Tests.Managers
 
             await _appointmentManager.LoadDoctorAppointmentsOnDate(doctorId, date);
 
-            Assert.AreEqual(appointments.Count, _appointmentManager.Appointments.Count);
+            Assert.That(_appointmentManager.Appointments.Count, Is.EqualTo(appointments.Count));
         }
 
         [Test]
-        public async Task LoadDoctorAppointmentsOnDate_ThrowsException_WhenDatabaseCallFails()
+        public Task LoadDoctorAppointmentsOnDate_ThrowsException_WhenDatabaseCallFails()
         {
             var doctorId = 1;
             var date = DateTime.Now;
@@ -52,6 +52,7 @@ namespace Hospital.Tests.Managers
                                 .Throws(new Exception("Mocked database exception"));
 
             Assert.ThrowsAsync<Exception>(() => _appointmentManager.LoadDoctorAppointmentsOnDate(doctorId, date));
+            return Task.CompletedTask;
         }
 
         #endregion
@@ -73,17 +74,18 @@ namespace Hospital.Tests.Managers
 
             await _appointmentManager.LoadAppointmentsForPatient(patientId);
 
-            Assert.AreEqual(1, _appointmentManager.Appointments.Count);
+            Assert.That(_appointmentManager.Appointments.Count, Is.EqualTo(1));
         }
 
         [Test]
-        public async Task LoadAppointmentsForPatient_ThrowsException_WhenDatabaseCallFails()
+        public Task LoadAppointmentsForPatient_ThrowsException_WhenDatabaseCallFails()
         {
             var patientId = 1;
             _mockDatabaseService.Setup(s => s.GetAppointmentsForPatient(patientId))
                                 .Throws(new Exception("Mocked database exception"));
 
             Assert.ThrowsAsync<Exception>(() => _appointmentManager.LoadAppointmentsForPatient(patientId));
+            return Task.CompletedTask;
         }
 
         #endregion
@@ -106,17 +108,18 @@ namespace Hospital.Tests.Managers
         }
 
         [Test]
-        public async Task RemoveAppointment_AppointmentNotFound_ThrowsException()
+        public Task RemoveAppointment_AppointmentNotFound_ThrowsException()
         {
             var appointmentId = 1;
-            _mockDatabaseService.Setup(s => s.GetAppointment(appointmentId))
-                                .ReturnsAsync((AppointmentJointModel)null);
+            _mockDatabaseService.Setup(s => s.GetAppointment(appointmentId))!
+                                .ReturnsAsync((AppointmentJointModel?)null);
 
             Assert.ThrowsAsync<AppointmentNotFoundException>(() => _appointmentManager.RemoveAppointment(appointmentId));
+            return Task.CompletedTask;
         }
 
         [Test]
-        public async Task RemoveAppointment_AppointmentWithin24Hours_ThrowsException()
+        public Task RemoveAppointment_AppointmentWithin24Hours_ThrowsException()
         {
             var appointmentId = 1;
             var appointment = new AppointmentJointModel { DateAndTime = DateTime.Now.AddHours(12) };
@@ -124,6 +127,7 @@ namespace Hospital.Tests.Managers
                                 .ReturnsAsync(appointment);
 
             Assert.ThrowsAsync<CancellationNotAllowedException>(() => _appointmentManager.RemoveAppointment(appointmentId));
+            return Task.CompletedTask;
         }
 
         #endregion
@@ -131,7 +135,7 @@ namespace Hospital.Tests.Managers
         #region CreateAppointment Tests
 
         [Test]
-        public async Task CreateAppointment_ValidData_AppointmentCreated()
+        public Task CreateAppointment_ValidData_AppointmentCreated()
         {
             var newAppointment = new AppointmentModel { DoctorId = 1, PatientId = 1, DateAndTime = DateTime.Now.AddHours(1) };
             _mockDatabaseService.Setup(s => s.GetAppointmentsByDoctorAndDate(newAppointment.DoctorId, newAppointment.DateAndTime))
@@ -142,10 +146,11 @@ namespace Hospital.Tests.Managers
                                 .ReturnsAsync(true);
 
             Assert.DoesNotThrowAsync(() => _appointmentManager.CreateAppointment(newAppointment));
+            return Task.CompletedTask;
         }
 
         [Test]
-        public async Task CreateAppointment_TimeSlotTaken_ThrowsException()
+        public Task CreateAppointment_TimeSlotTaken_ThrowsException()
         {
             var newAppointment = new AppointmentModel { DoctorId = 1, PatientId = 1, DateAndTime = DateTime.Now.AddHours(1) };
             var existingAppointment = new AppointmentJointModel { DoctorId = newAppointment.DoctorId, DateAndTime = newAppointment.DateAndTime };
@@ -153,6 +158,7 @@ namespace Hospital.Tests.Managers
                                 .ReturnsAsync(new List<AppointmentJointModel> { existingAppointment });
 
             Assert.ThrowsAsync<AppointmentConflictException>(() => _appointmentManager.CreateAppointment(newAppointment));
+            return Task.CompletedTask;
         }
 
         #endregion

@@ -1,23 +1,23 @@
-﻿using Hospital.Configs;
-using Hospital.Models;
-using Microsoft.Data.SqlClient;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.System;
-
-namespace Hospital.DatabaseServices
+﻿namespace Hospital.DatabaseServices
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
+    using System.Text;
+    using System.Threading.Tasks;
+    using Hospital.Configs;
+    using Hospital.Models;
+    using Microsoft.Data.SqlClient;
+    using Windows.System;
+
     public class DoctorsDatabaseService : IDoctorsDatabaseService
     {
         private readonly ApplicationConfiguration _configuration;
 
         public DoctorsDatabaseService()
         {
-            _configuration = ApplicationConfiguration.GetInstance();
+            this._configuration = ApplicationConfiguration.GetInstance();
         }
 
         // This method will be used to get the doctors from the database
@@ -40,19 +40,19 @@ namespace Hospital.DatabaseServices
                 using SqlConnection sqlConnection = new SqlConnection(_configuration.DatabaseConnection);
                 await sqlConnection.OpenAsync().ConfigureAwait(false);
 
-                //Prepare the command
+                // Prepare the command
                 SqlCommand selectDoctorsCommand = new SqlCommand(selectDoctorsByDepartmentQuery, sqlConnection);
 
-                //Insert parameters
+                // Insert parameters
                 selectDoctorsCommand.Parameters.AddWithValue("@departmentId", departmentId);
 
                 SqlDataReader reader = await selectDoctorsCommand.ExecuteReaderAsync().ConfigureAwait(false);
 
 
-                //Prepare the list of doctors
+                // Prepare the list of doctors
                 List<DoctorJointModel> doctorsList = new List<DoctorJointModel>();
 
-                //Read the data from the database
+                // Read the data from the database
                 while (await reader.ReadAsync().ConfigureAwait(false))
                 {
                     int doctorId = reader.GetInt32(0);

@@ -27,7 +27,7 @@ namespace Hospital.Tests.Helpers
 
             var result = TimeRounder.RoundProcedureDuration(input);
 
-            Assert.AreEqual(expected, result);
+            Assert.That(result, Is.EqualTo(expected));
         }
     }
 }

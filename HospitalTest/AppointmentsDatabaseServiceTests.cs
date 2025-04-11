@@ -1,35 +1,51 @@
-﻿using Hospital.DatabaseServices;
-using Hospital.Models;
-using Hospital.Exceptions;
-using Hospital.Configs;
-using Moq;
-using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.Data.SqlClient;
+﻿// <copyright file="AppointmentsDatabaseServiceTests.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
-namespace Hospital.Tests.DatabaseServices
+namespace HospitalTest
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using Hospital.Configs;
+    using Hospital.DatabaseServices;
+    using Hospital.Exceptions;
+    using Hospital.Models;
+    using Microsoft.Data.SqlClient;
+    using Moq;
+    using NUnit.Framework;
+
+    /// <summary>
+    /// Contains unit tests for the AppointmentsDatabaseService class.
+    /// </summary>
     [TestFixture]
     public class AppointmentsDatabaseServiceTests
     {
-        private IAppointmentsDatabaseService _service;
-        private ApplicationConfiguration _config;
+        private IAppointmentsDatabaseService service;
+        private ApplicationConfiguration config;
 
+        /// <summary>
+        /// Initializes the test configuration.
+        /// </summary>
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            // Initialize the singleton configuration
-            _config = ApplicationConfiguration.GetInstance();
+            this.config = ApplicationConfiguration.GetInstance();
         }
 
+        /// <summary>
+        /// Sets up the test environment before each test.
+        /// </summary>
         [SetUp]
         public void SetUp()
         {
-            _service = new AppointmentsDatabaseService();
+            this.service = new AppointmentsDatabaseService();
         }
 
+        /// <summary>
+        /// Tests that adding a valid appointment returns true.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Test]
         public async Task AddAppointmentToDataBase_ValidAppointment_ReturnsTrue()
         {
@@ -40,14 +56,34 @@ namespace Hospital.Tests.DatabaseServices
                 doctorId: 1,
                 dateAndTime: DateTime.Now.AddDays(1),
                 finished: false,
-                procedureId: 1
-            );
+                procedureId: 1);
 
             // Act
-            var result = await _service.AddAppointmentToDataBase(appointment);
+            var result = await this.service.AddAppointmentToDataBase(appointment);
 
             // Assert
             Assert.That(result, Is.True);
+        }
+
+        /// <summary>
+        /// Tests that adding an appointment with a past date throws InvalidAppointmentException.
+        /// </summary>
+        [Test]
+        public void AddAppointmentToDataBase_PastDate_ThrowsException()
+        {
+            // Arrange
+            var appointment = new AppointmentModel(
+                appointmentId: 0,
+                patientId: 1,
+                doctorId: 1,
+                dateAndTime: DateTime.Now.AddDays(-1),
+                finished: false,
+                procedureId: 1);
+
+            // Act & Assert
+            var exception = Assert.ThrowsAsync<InvalidAppointmentException>(
+                async () => await this.service.AddAppointmentToDataBase(appointment));
+            Assert.That(exception.Message, Does.Contain("Cannot create appointments in the past"));
         }
 
         [Test]
@@ -65,28 +101,8 @@ namespace Hospital.Tests.DatabaseServices
 
             // Act & Assert
             Assert.ThrowsAsync<DatabaseOperationException>(
-                async () => await _service.AddAppointmentToDataBase(appointment)
+                async () => await this.service.AddAppointmentToDataBase(appointment)
             );
-        }
-
-        [Test]
-        public void AddAppointmentToDataBase_PastDate_ThrowsException()
-        {
-            // Arrange
-            var appointment = new AppointmentModel(
-                appointmentId: 0,
-                patientId: 1,
-                doctorId: 1,
-                dateAndTime: DateTime.Now.AddDays(-1),
-                finished: false,
-                procedureId: 1
-            );
-
-            // Act & Assert
-            var exception = Assert.ThrowsAsync<InvalidAppointmentException>(
-                async () => await _service.AddAppointmentToDataBase(appointment)
-            );
-            Assert.That(exception.Message, Does.Contain("Cannot create appointments in the past"));
         }
 
         [Test]
@@ -96,7 +112,7 @@ namespace Hospital.Tests.DatabaseServices
             int doctorId = 1;
 
             // Act
-            var result = await _service.GetAppointmentsForDoctor(doctorId);
+            var result = await this.service.GetAppointmentsForDoctor(doctorId);
 
             // Assert
             Assert.Multiple(() =>
@@ -113,7 +129,7 @@ namespace Hospital.Tests.DatabaseServices
             int doctorId = -1;
 
             // Act
-            var result = await _service.GetAppointmentsForDoctor(doctorId);
+            var result = await this.service.GetAppointmentsForDoctor(doctorId);
 
             // Assert
             Assert.That(result, Is.Empty);
@@ -126,7 +142,7 @@ namespace Hospital.Tests.DatabaseServices
             int patientId = 1;
 
             // Act
-            var result = await _service.GetAppointmentsForPatient(patientId);
+            var result = await this.service.GetAppointmentsForPatient(patientId);
 
             // Assert
             Assert.Multiple(() =>
@@ -143,7 +159,7 @@ namespace Hospital.Tests.DatabaseServices
             int patientId = -1;
 
             // Act
-            var result = await _service.GetAppointmentsForPatient(patientId);
+            var result = await this.service.GetAppointmentsForPatient(patientId);
 
             // Assert
             Assert.That(result, Is.Empty);
@@ -157,7 +173,7 @@ namespace Hospital.Tests.DatabaseServices
             DateTime date = DateTime.Now.AddDays(+1);
 
             // Act
-            var result = await _service.GetAppointmentsByDoctorAndDate(doctorId, date);
+            var result = await this.service.GetAppointmentsByDoctorAndDate(doctorId, date);
 
             // Assert
             Assert.Multiple(() =>
@@ -176,7 +192,7 @@ namespace Hospital.Tests.DatabaseServices
 
             // Act & Assert
             Assert.ThrowsAsync<DatabaseOperationException>(
-                async () => await _service.GetAppointmentsByDoctorAndDate(doctorId, date)
+                async () => await this.service.GetAppointmentsByDoctorAndDate(doctorId, date)
             );
         }
 
@@ -189,7 +205,7 @@ namespace Hospital.Tests.DatabaseServices
 
             // Act & Assert
             Assert.ThrowsAsync<InvalidAppointmentException>(
-                async () => await _service.GetAppointmentsByDoctorAndDate(doctorId, date)
+                async () => await this.service.GetAppointmentsByDoctorAndDate(doctorId, date)
             );
         }
 
@@ -206,14 +222,14 @@ namespace Hospital.Tests.DatabaseServices
                 finished: false,
                 procedureId: 1
             );
-            await _service.AddAppointmentToDataBase(appointment);
+            await this.service.AddAppointmentToDataBase(appointment);
 
             // Get a valid appointment ID
-            var appointments = await _service.GetAppointmentsForDoctor(1);
+            var appointments = await this.service.GetAppointmentsForDoctor(1);
             var appointmentId = appointments[0].AppointmentId;
 
             // Act
-            var result = await _service.GetAppointment(appointmentId);
+            var result = await this.service.GetAppointment(appointmentId);
 
             // Assert
             Assert.Multiple(() =>
@@ -230,7 +246,7 @@ namespace Hospital.Tests.DatabaseServices
             int appointmentId = -1;
 
             // Act
-            var result = await _service.GetAppointment(appointmentId);
+            var result = await this.service.GetAppointment(appointmentId);
 
             // Assert
             Assert.That(result, Is.Null);
@@ -249,29 +265,30 @@ namespace Hospital.Tests.DatabaseServices
                 finished: false,
                 procedureId: 1
             );
-            await _service.AddAppointmentToDataBase(appointment);
+            await this.service.AddAppointmentToDataBase(appointment);
 
             // Get a valid appointment ID
-            var appointments = await _service.GetAppointmentsForDoctor(1);
+            var appointments = await this.service.GetAppointmentsForDoctor(1);
             var validAppointmentId = appointments[0].AppointmentId;
 
             // Act
-            var result = await _service.RemoveAppointmentFromDataBase(validAppointmentId);
+            var result = await this.service.RemoveAppointmentFromDataBase(validAppointmentId);
 
             // Assert
             Assert.That(result, Is.True);
         }
 
         [Test]
-        public async Task RemoveAppointmentFromDataBase_InvalidId_ReturnsFalse()
+        public Task RemoveAppointmentFromDataBase_InvalidId_ReturnsFalse()
         {
             // Arrange
             int invalidId = -1;
 
             // Act
             Assert.ThrowsAsync<DatabaseOperationException>(
-                async () => await _service.RemoveAppointmentFromDataBase(invalidId)
+                async () => await this.service.RemoveAppointmentFromDataBase(invalidId)
             );
+            return Task.CompletedTask;
         }
 
         [Test]
@@ -282,7 +299,7 @@ namespace Hospital.Tests.DatabaseServices
 
             // Act & Assert
             Assert.ThrowsAsync<DatabaseOperationException>(
-                async () => await _service.RemoveAppointmentFromDataBase(invalidId)
+                async () => await this.service.RemoveAppointmentFromDataBase(invalidId)
             );
         }
 

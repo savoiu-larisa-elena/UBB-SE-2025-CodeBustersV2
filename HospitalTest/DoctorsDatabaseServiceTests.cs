@@ -246,7 +246,7 @@ namespace HospitalTest
     // Test-specific implementation that doesn't use a real database
     public class MockDoctorsDatabaseService : DoctorsDatabaseService
     {
-        public async Task<List<DoctorJointModel>> GetDoctorsByDepartment(int departmentId)
+        public new async Task<List<DoctorJointModel>> GetDoctorsByDepartment(int departmentId)
         {
             // Simulate database access without actually connecting to a database
             await Task.Delay(10); // Simulate network delay
@@ -293,7 +293,7 @@ namespace HospitalTest
             _throwSql = throwSql;
         }
 
-        public async Task<List<DoctorJointModel>> GetDoctorsByDepartment(int departmentId)
+        public new async Task<List<DoctorJointModel>> GetDoctorsByDepartment(int departmentId)
         {
             await Task.Delay(1); // Simulate async behavior
 
@@ -314,7 +314,7 @@ namespace HospitalTest
             var faulty = new FaultyDoctorsDatabaseService(true);
 
             // Act
-            List<DoctorJointModel> result = null;
+            List<DoctorJointModel>? result = null;
             try
             {
                 result = await faulty.GetDoctorsByDepartment(1);
@@ -337,7 +337,7 @@ namespace HospitalTest
             var faulty = new FaultyDoctorsDatabaseService(false);
 
             // Act
-            List<DoctorJointModel> result = null;
+            List<DoctorJointModel>? result = null;
             try
             {
                 result = await faulty.GetDoctorsByDepartment(1);
@@ -366,7 +366,7 @@ namespace HospitalTest
             int departmentId = 1;
             
             // Act
-            List<DoctorJointModel> result = null;
+            List<DoctorJointModel>? result = null;
             try
             {
                 result = await service.GetDoctorsByDepartment(departmentId);
@@ -397,7 +397,7 @@ namespace HospitalTest
             // Act & Assert
             foreach (int departmentId in departmentIds)
             {
-                List<DoctorJointModel> result = null;
+                List<DoctorJointModel>? result = null;
                 try
                 {
                     result = await service.GetDoctorsByDepartment(departmentId);
@@ -428,7 +428,7 @@ namespace HospitalTest
             int negativeDepartmentId = -1;
             
             // Act
-            List<DoctorJointModel> result = null;
+            List<DoctorJointModel>? result = null;
             try
             {
                 result = await service.GetDoctorsByDepartment(negativeDepartmentId);
@@ -453,7 +453,7 @@ namespace HospitalTest
             int zeroDepartmentId = 0;
             
             // Act
-            List<DoctorJointModel> result = null;
+            List<DoctorJointModel>? result = null;
             try
             {
                 result = await service.GetDoctorsByDepartment(zeroDepartmentId);
@@ -478,7 +478,7 @@ namespace HospitalTest
             int largeDepartmentId = 999999;
             
             // Act
-            List<DoctorJointModel> result = null;
+            List<DoctorJointModel>? result = null;
             try
             {
                 result = await service.GetDoctorsByDepartment(largeDepartmentId);
@@ -508,14 +508,14 @@ namespace HospitalTest
             int departmentId = 1;
             
             // Use reflection to access the private method
-            var methodInfo = typeof(DoctorsDatabaseService).GetMethod("GetDoctorsByDepartment", 
-                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            var methodInfo = typeof(DoctorsDatabaseService)!.GetMethod("GetDoctorsByDepartment", 
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)!;
             
             // Act
-            List<DoctorJointModel> result = null;
+            List<DoctorJointModel>? result = null;
             try
             {
-                result = await (Task<List<DoctorJointModel>>)methodInfo.Invoke(service, new object[] { departmentId });
+                result = await (Task<List<DoctorJointModel>>)methodInfo!.Invoke(service, new object[] { departmentId })!;
             }
             catch (Exception ex)
             {

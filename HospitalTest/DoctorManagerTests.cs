@@ -38,8 +38,8 @@ namespace Hospital.Tests.Managers
 
             await _doctorManager.LoadDoctors(departmentId);
 
-            Assert.AreEqual(2, _doctorManager.Doctors.Count);
-            Assert.AreEqual("Dr. House", _doctorManager.Doctors[0].DoctorName);
+            Assert.That(_doctorManager.Doctors.Count, Is.EqualTo(2));
+            Assert.That(_doctorManager.Doctors[0].DoctorName, Is.EqualTo("Dr. House"));
         }
 
         [Test]
@@ -51,7 +51,7 @@ namespace Hospital.Tests.Managers
 
             await _doctorManager.LoadDoctors(departmentId);
 
-            Assert.AreEqual(0, _doctorManager.Doctors.Count);
+            Assert.That(_doctorManager.Doctors.Count, Is.EqualTo(0));
         }
 
         [Test]
@@ -60,8 +60,8 @@ namespace Hospital.Tests.Managers
             _doctorManager.Doctors.Add(new DoctorJointModel(3, 103, "Dr. Wilson", 2, 4.2, "XYZ789"));
             var result = _doctorManager.GetDoctorsWithRatings();
 
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual("Dr. Wilson", result[0].DoctorName);
+            Assert.That(result.Count, Is.EqualTo(1));
+            Assert.That(result[0].DoctorName, Is.EqualTo("Dr. Wilson"));
         }
     }
 }

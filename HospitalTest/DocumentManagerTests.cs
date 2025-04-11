@@ -40,7 +40,7 @@ namespace Hospital.Tests.Managers
 
             await _manager.LoadDocuments(1);
 
-            Assert.AreEqual(1, _manager.GetDocuments().Count);
+            Assert.That(_manager.GetDocuments().Count, Is.EqualTo(1));
         }
 
         [Test]
@@ -73,7 +73,7 @@ namespace Hospital.Tests.Managers
 
             await _manager.AddDocumentToMedicalRecord(doc);
 
-            Assert.AreEqual(1, _manager.GetDocuments().Count);
+            Assert.That(_manager.GetDocuments().Count, Is.EqualTo(1));
         }
 
         [Test]
@@ -84,7 +84,7 @@ namespace Hospital.Tests.Managers
 
             await _manager.AddDocumentToMedicalRecord(doc);
 
-            Assert.AreEqual(0, _manager.GetDocuments().Count);
+            Assert.That(_manager.GetDocuments().Count, Is.EqualTo(0));
         }
 
         [Test]

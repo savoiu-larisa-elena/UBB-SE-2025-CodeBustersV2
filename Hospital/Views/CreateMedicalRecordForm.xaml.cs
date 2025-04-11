@@ -1,14 +1,10 @@
 using System;
-using System.Collections.Generic;
 using Windows.Storage.Pickers;
-using Windows.Storage;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Hospital.ViewModels;
 using Hospital.Models;
 using System.Threading.Tasks;
-using WinRT.Interop;
-using Microsoft.UI.Xaml;
 using System.ComponentModel.DataAnnotations;
 
 namespace Hospital.Views

@@ -36,7 +36,7 @@ namespace Hospital.Tests.Managers
 
             await _manager.LoadMedicalRecordsForPatient(1);
 
-            Assert.AreEqual(1, _manager.MedicalRecords.Count);
+            Assert.That(_manager.MedicalRecords.Count, Is.EqualTo(1));
         }
 
         [Test]
@@ -47,7 +47,7 @@ namespace Hospital.Tests.Managers
 
             var result = _manager.GetMedicalRecordById(1);
 
-            Assert.AreEqual("John", result.PatientName);
+            Assert.That(result.PatientName, Is.EqualTo("John"));
         }
 
         [Test]
@@ -70,8 +70,8 @@ namespace Hospital.Tests.Managers
 
             var result = await _manager.CreateMedicalRecord(appointment, "Test OK");
 
-            Assert.AreEqual(expectedId, result);
-            Assert.AreEqual(1, _manager.MedicalRecords.Count);
+            Assert.That(result, Is.EqualTo(expectedId));
+            Assert.That(_manager.MedicalRecords.Count, Is.EqualTo(1));
         }
 
         [Test]
@@ -112,8 +112,8 @@ namespace Hospital.Tests.Managers
 
             var result = await _manager.CreateMedicalRecordWithAppointment(appointment, "Healthy");
 
-            Assert.AreEqual(99, result);
-            Assert.IsTrue(appointment.Finished);
+            Assert.That(result, Is.EqualTo(99));
+            Assert.That(appointment.Finished, Is.True);
         }
 
         [Test]
@@ -128,7 +128,7 @@ namespace Hospital.Tests.Managers
 
             await _manager.LoadMedicalRecordsForDoctor(2);
 
-            Assert.AreEqual(1, _manager.MedicalRecords.Count);
+            Assert.That(_manager.MedicalRecords.Count, Is.EqualTo(1));
         }
 
         [Test]

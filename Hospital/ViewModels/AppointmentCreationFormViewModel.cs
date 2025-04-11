@@ -304,17 +304,17 @@ namespace Hospital.ViewModels
                 return;
             }
 
-            //get the appointments
+            // get the appointments
             AppointmentsList = _appointmentManager.GetAppointments();
 
-            //compute available time slots
+            // compute available time slots
             List<string> availableTimeSlots = new List<string>();
 
-            //get the start time
+            // get the start time
             TimeSpan startTimeShift = shift.StartTime;
 
             TimeSpan endTimeShift;
-            //handle the 24h shift -- can be changed
+            // handle the 24h shift -- can be changed
             if (shift.StartTime == shift.EndTime)
             {
                 endTimeShift = startTimeShift.Add(TimeSpan.FromHours(DefaultShiftHours));
@@ -327,15 +327,15 @@ namespace Hospital.ViewModels
             // Round procedure duration to the nearest slot duration multiple
             TimeSpan procedureDuration = TimeRounder.RoundProcedureDuration(SelectedProcedure.ProcedureDuration);
 
-            //generate the time slots
+            // generate the time slots
             TimeSpan currentTime = startTimeShift;
 
-            foreach (var appointment in AppointmentsList)
+            foreach (var appointment in this.AppointmentsList)
             {
                 TimeSpan appointmentStartTime = appointment.DateAndTime.TimeOfDay;
                 TimeSpan appointmentEndTime = appointmentStartTime.Add(appointment.ProcedureDuration);
 
-                //Round the appointment start time to the nearest 30-minute multiple after the current time
+                // Round the appointment start time to the nearest 30-minute multiple after the current time
                 appointmentEndTime = TimeRounder.RoundProcedureDuration(appointmentEndTime);
 
                 // Check for available slots before the next appointment starts
@@ -357,10 +357,10 @@ namespace Hospital.ViewModels
             }
 
             // Update the list of available time slots
-            HoursList.Clear();
+            this.HoursList.Clear();
             foreach (string timeSlot in availableTimeSlots)
             {
-                HoursList.Add(timeSlot);
+                this.HoursList.Add(timeSlot);
             }
 
             // Enable time selection only if there are available slots

@@ -74,12 +74,16 @@ namespace HospitalTest
         public async Task UploadDocumentToDataBase_NullDocument_ReturnsFalse()
         {
             // Arrange
-            DocumentModel document = null;
+            DocumentModel? document = null;
+#pragma warning disable CS8604 // Possible null reference argument.
             _mockService.Setup(ds => ds.UploadDocumentToDataBase(document))
                 .ReturnsAsync(false);
+#pragma warning restore CS8604 // Possible null reference argument.
 
             // Act
+#pragma warning disable CS8604 // Possible null reference argument.
             var result = await _mockService.Object.UploadDocumentToDataBase(document);
+#pragma warning restore CS8604 // Possible null reference argument.
 
             // Assert
             Assert.That(result, Is.False);
@@ -306,7 +310,7 @@ namespace HospitalTest
     // Test-specific implementation that doesn't use a real database
     public class MockDocumentDatabaseService : DocumentDatabaseService
     {
-        public async Task<bool> UploadDocumentToDataBase(DocumentModel document)
+        public new async Task<bool> UploadDocumentToDataBase(DocumentModel document)
         {
             // Simulate database access without actually connecting to a database
             await Task.Delay(10); // Simulate network delay
@@ -315,7 +319,7 @@ namespace HospitalTest
             return true;
         }
 
-        public async Task<List<DocumentModel>> GetDocumentsByMedicalRecordId(int medicalRecordId)
+        public new async Task<List<DocumentModel>> GetDocumentsByMedicalRecordId(int medicalRecordId)
         {
             // Simulate database access without actually connecting to a database
             await Task.Delay(10); // Simulate network delay
@@ -376,7 +380,7 @@ namespace HospitalTest
             _throwSql = throwSql;
         }
 
-        public async Task<bool> UploadDocumentToDataBase(DocumentModel document)
+        public new async Task<bool> UploadDocumentToDataBase(DocumentModel document)
         {
             await Task.Delay(1); // Simulate async behavior
 
@@ -386,7 +390,7 @@ namespace HospitalTest
             throw new InvalidOperationException("Simulated general error");
         }
 
-        public async Task<List<DocumentModel>> GetDocumentsByMedicalRecordId(int medicalRecordId)
+        public new async Task<List<DocumentModel>> GetDocumentsByMedicalRecordId(int medicalRecordId)
         {
             await Task.Delay(1); // Simulate async behavior
 
@@ -453,7 +457,7 @@ namespace HospitalTest
             var faulty = new FaultyDocumentDatabaseService(true);
 
             // Act
-            List<DocumentModel> result = null;
+            List<DocumentModel>? result = null;
             try
             {
                 result = await faulty.GetDocumentsByMedicalRecordId(1);
@@ -475,7 +479,7 @@ namespace HospitalTest
             var faulty = new FaultyDocumentDatabaseService(false);
 
             // Act
-            List<DocumentModel> result = null;
+            List<DocumentModel>? result = null;
             try
             {
                 result = await faulty.GetDocumentsByMedicalRecordId(1);
@@ -527,7 +531,7 @@ namespace HospitalTest
             int medicalRecordId = 101;
             
             // Act
-            List<DocumentModel> result = null;
+            List<DocumentModel>? result = null;
             try
             {
                 result = await service.GetDocumentsByMedicalRecordId(medicalRecordId);
@@ -558,7 +562,7 @@ namespace HospitalTest
             // Act & Assert
             foreach (int medicalRecordId in medicalRecordIds)
             {
-                List<DocumentModel> result = null;
+                List<DocumentModel>? result = null;
                 try
                 {
                     result = await service.GetDocumentsByMedicalRecordId(medicalRecordId);
@@ -589,7 +593,7 @@ namespace HospitalTest
             int negativeMedicalRecordId = -1;
             
             // Act
-            List<DocumentModel> result = null;
+            List<DocumentModel>? result = null;
             try
             {
                 result = await service.GetDocumentsByMedicalRecordId(negativeMedicalRecordId);
@@ -614,7 +618,7 @@ namespace HospitalTest
             int zeroMedicalRecordId = 0;
             
             // Act
-            List<DocumentModel> result = null;
+            List<DocumentModel>? result = null;
             try
             {
                 result = await service.GetDocumentsByMedicalRecordId(zeroMedicalRecordId);
@@ -639,7 +643,7 @@ namespace HospitalTest
             int largeMedicalRecordId = 999999;
             
             // Act
-            List<DocumentModel> result = null;
+            List<DocumentModel>? result = null;
             try
             {
                 result = await service.GetDocumentsByMedicalRecordId(largeMedicalRecordId);
@@ -673,10 +677,10 @@ namespace HospitalTest
                 System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
             
             // Act
-            bool result = false;
+            bool? result = false;
             try
             {
-                result = await (Task<bool>)methodInfo.Invoke(service, new object[] { document });
+                result = await (Task<bool>)methodInfo!.Invoke(service, new object[] { document })!;
             }
             catch (Exception ex)
             {
@@ -701,10 +705,10 @@ namespace HospitalTest
                 System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
             
             // Act
-            List<DocumentModel> result = null;
+            List<DocumentModel>? result = null;
             try
             {
-                result = await (Task<List<DocumentModel>>)methodInfo.Invoke(service, new object[] { medicalRecordId });
+                result = await (Task<List<DocumentModel>>)methodInfo!.Invoke(service, new object[] { medicalRecordId })!;
             }
             catch (Exception ex)
             {

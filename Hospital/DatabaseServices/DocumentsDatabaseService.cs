@@ -64,7 +64,7 @@ namespace Hospital.DatabaseServices
                 "SELECT * FROM Documents WHERE MedicalRecordId = @MedicalRecordId";
             try
             {
-                using var sqlConnection = new SqlConnection(_configuration.DatabaseConnection);
+                using var sqlConnection = new SqlConnection(this._configuration.DatabaseConnection);
 
                 // Open the database connection asynchronously
                 await sqlConnection.OpenAsync().ConfigureAwait(false);
@@ -89,8 +89,8 @@ namespace Hospital.DatabaseServices
                     DocumentModel document = new DocumentModel(
                         reader.GetInt32(0),
                         reader.GetInt32(1),
-                        reader.GetString(2)
-                    );
+                        reader.GetString(2));
+
                     // Add the document to the list
                     documents.Add(document);
                 }

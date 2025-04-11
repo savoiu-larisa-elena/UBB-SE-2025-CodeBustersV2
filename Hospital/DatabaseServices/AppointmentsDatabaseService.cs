@@ -1,22 +1,40 @@
-using Hospital.Configs;
-using Hospital.Models;
-using Hospital.Exceptions;
-using Microsoft.Data.SqlClient;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Threading.Tasks;
+// <copyright file="AppointmentsDatabaseService.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
 namespace Hospital.DatabaseServices
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Data;
+    using System.Threading.Tasks;
+    using Hospital.Configs;
+    using Hospital.Exceptions;
+    using Hospital.Models;
+    using Microsoft.Data.SqlClient;
+
+    /// <summary>
+    /// Service for managing appointments in the database.
+    /// </summary>
     public class AppointmentsDatabaseService : IAppointmentsDatabaseService
     {
-        private readonly ApplicationConfiguration _configuration;
+        private readonly ApplicationConfiguration configuration;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AppointmentsDatabaseService"/> class.
+        /// </summary>
         public AppointmentsDatabaseService()
         {
-            _configuration = ApplicationConfiguration.GetInstance();
+            this.configuration = ApplicationConfiguration.GetInstance();
         }
 
+        /// <summary>
+        /// Adds a new appointment to the database.
+        /// </summary>
+        /// <param name="appointment">The appointment to add.</param>
+        /// <returns>A task representing the asynchronous operation. The task result is true if the appointment was added successfully.</returns>
+        /// <exception cref="InvalidAppointmentException">Thrown when the appointment date is in the past.</exception>
+        /// <exception cref="DatabaseOperationException">Thrown when a database error occurs.</exception>
         public async Task<bool> AddAppointmentToDataBase(AppointmentModel appointment)
         {
             // Validate that the appointment is not in the past
@@ -25,20 +43,20 @@ namespace Hospital.DatabaseServices
                 throw new InvalidAppointmentException("Cannot create appointments in the past");
             }
 
-            const string insertAppointmentQuery =
+            const string InsertAppointmentQuery =
               "INSERT INTO Appointments (PatientId, DoctorId, DateAndTime, ProcedureId, Finished) " +
               "VALUES (@PatientId, @DoctorId, @DateAndTime, @ProcedureId, @Finished)";
 
             try
             {
-                using SqlConnection sqlConnection = new SqlConnection(_configuration.DatabaseConnection);
+                using SqlConnection sqlConnection = new SqlConnection(this.configuration.DatabaseConnection);
 
                 // Open the database connection asynchronously
                 await sqlConnection.OpenAsync().ConfigureAwait(false);
                 Console.WriteLine("Connection established successfully.");
 
                 // Create a command to execute the SQL query
-                using SqlCommand sqlCommand = new SqlCommand(insertAppointmentQuery, sqlConnection);
+                using SqlCommand sqlCommand = new SqlCommand(InsertAppointmentQuery, sqlConnection);
 
                 // Add the parameters to the query with values from the appointment object
                 sqlCommand.Parameters.AddWithValue("@PatientId", appointment.PatientId);
@@ -65,9 +83,14 @@ namespace Hospital.DatabaseServices
             }
         }
 
+        /// <summary>
+        /// Retrieves all appointments from the database.
+        /// </summary>
+        /// <returns>A task representing the asynchronous operation. The task result contains a list of appointments.</returns>
+        /// <exception cref="DatabaseOperationException">Thrown when a database error occurs.</exception>
         public async Task<List<AppointmentJointModel>> GetAllAppointments()
         {
-            const string selectAppointmentsQuery = @"SELECT 
+            const string SelectAppointmentsQuery = @"SELECT 
                     a.AppointmentId,
                     a.Finished,
                     a.DateAndTime,
@@ -93,42 +116,32 @@ namespace Hospital.DatabaseServices
 
             try
             {
-                using SqlConnection sqlConnection = new SqlConnection(_configuration.DatabaseConnection);
-                // Open the database connection asynchronously.
+                using SqlConnection sqlConnection = new SqlConnection(this.configuration.DatabaseConnection);
                 await sqlConnection.OpenAsync().ConfigureAwait(false);
                 Console.WriteLine("Connection established successfully.");
 
-                // Create a command to execute the SQL query.
-                using SqlCommand sqlCommand = new SqlCommand(selectAppointmentsQuery, sqlConnection);
-
-                // Execute the command and obtain a SqlDataReader.
+                using SqlCommand sqlCommand = new SqlCommand(SelectAppointmentsQuery, sqlConnection);
                 using SqlDataReader reader = await sqlCommand.ExecuteReaderAsync().ConfigureAwait(false);
-
-                // Load the results into a DataTable.
                 await Task.Run(() => appointmentsDataTable.Load(reader)).ConfigureAwait(false);
 
-                // Create a list to store the AppointmentJointModel objects.
                 List<AppointmentJointModel> appointments = new List<AppointmentJointModel>();
 
                 foreach (DataRow row in appointmentsDataTable.Rows)
                 {
                     appointments.Add(new AppointmentJointModel(
-                      (int)row["AppointmentId"],
-                      (bool)row["Finished"],
-                      (DateTime)row["DateAndTime"],
-                      (int)row["DepartmentId"],
-                      (string)row["DepartmentName"],
-                      (int)row["DoctorId"],
-                      (string)row["DoctorName"],
-                      (int)row["PatientId"],
-                      (string)row["PatientName"],
-                      (int)row["ProcedureId"],
-                      (string)row["ProcedureName"],
-                      (TimeSpan)row["ProcedureDuration"]
-                    ));
+                        (int)row["AppointmentId"],
+                        (bool)row["Finished"],
+                        (DateTime)row["DateAndTime"],
+                        (int)row["DepartmentId"],
+                        (string)row["DepartmentName"],
+                        (int)row["DoctorId"],
+                        (string)row["DoctorName"],
+                        (int)row["PatientId"],
+                        (string)row["PatientName"],
+                        (int)row["ProcedureId"],
+                        (string)row["ProcedureName"],
+                        (TimeSpan)row["ProcedureDuration"]));
                 }
-
-                sqlConnection.Close();
 
                 return appointments;
             }
@@ -142,9 +155,15 @@ namespace Hospital.DatabaseServices
             }
         }
 
+        /// <summary>
+        /// Retrieves appointments for a specific patient.
+        /// </summary>
+        /// <param name="patientId">The ID of the patient.</param>
+        /// <returns>A task representing the asynchronous operation. The task result contains a list of appointments.</returns>
+        /// <exception cref="DatabaseOperationException">Thrown when a database error occurs.</exception>
         public async Task<List<AppointmentJointModel>> GetAppointmentsForPatient(int patientId)
         {
-            const string selectAppointmentsByPatientIdQuery = @"SELECT 
+            const string SelectAppointmentsByPatientIdQuery = @"SELECT 
                     a.AppointmentId,
                     a.Finished,
                     a.DateAndTime,
@@ -171,11 +190,11 @@ namespace Hospital.DatabaseServices
 
             try
             {
-                using SqlConnection sqlConnection = new SqlConnection(_configuration.DatabaseConnection);
+                using SqlConnection sqlConnection = new SqlConnection(this.configuration.DatabaseConnection);
                 await sqlConnection.OpenAsync().ConfigureAwait(false);
                 Console.WriteLine($"Connected to DB. Fetching appointments for Patient ID: {patientId}");
 
-                using SqlCommand sqlCommand = new SqlCommand(selectAppointmentsByPatientIdQuery, sqlConnection);
+                using SqlCommand sqlCommand = new SqlCommand(SelectAppointmentsByPatientIdQuery, sqlConnection);
                 sqlCommand.Parameters.AddWithValue("@PatientId", patientId);
 
                 using SqlDataReader reader = await sqlCommand.ExecuteReaderAsync().ConfigureAwait(false);
@@ -198,8 +217,7 @@ namespace Hospital.DatabaseServices
                         (string)row["PatientName"],
                         (int)row["ProcedureId"],
                         (string)row["ProcedureName"],
-                        (TimeSpan)row["ProcedureDuration"]
-                    );
+                        (TimeSpan)row["ProcedureDuration"]);
 
                     Console.WriteLine($"Appointment found: {appointment.AppointmentId} - {appointment.DateAndTime}");
                     appointmentsForPatient.Add(appointment);
@@ -209,27 +227,35 @@ namespace Hospital.DatabaseServices
             }
             catch (SqlException sqlException)
             {
-                Console.WriteLine($"SQL Error: {sqlException.Message}");
-                return new List<AppointmentJointModel>();
+                throw new DatabaseOperationException($"SQL Error: {sqlException.Message}");
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"General Error: {exception.Message}");
-                return new List<AppointmentJointModel>();
+                throw new DatabaseOperationException($"General Error: {exception.Message}");
             }
         }
 
+        /// <summary>
+        /// Retrieves appointments for a specific doctor on a specific date.
+        /// </summary>
+        /// <param name="doctorId">The ID of the doctor.</param>
+        /// <param name="date">The date to check appointments for.</param>
+        /// <returns>A task representing the asynchronous operation. The task result contains a list of appointments.</returns>
+        /// <exception cref="DatabaseOperationException">Thrown when a database error occurs.</exception>
+        /// <exception cref="InvalidAppointmentException">Thrown when the date is in the past.</exception>
         public async Task<List<AppointmentJointModel>> GetAppointmentsByDoctorAndDate(int doctorId, DateTime date)
         {
-            if(doctorId < 0)
+            if (doctorId < 0)
             {
                 throw new DatabaseOperationException($"Doctor ID {doctorId} is invalid.");
             }
-            if(date < DateTime.Now)
+
+            if (date < DateTime.Now)
             {
                 throw new InvalidAppointmentException($"Date {date} is in the past.");
             }
-            const string selectAppointmentsByDoctorAndDateQuery = @"SELECT 
+
+            const string SelectAppointmentsByDoctorAndDateQuery = @"SELECT 
                     a.AppointmentId,
                     a.Finished,
                     a.DateAndTime,
@@ -257,47 +283,35 @@ namespace Hospital.DatabaseServices
 
             try
             {
-                using SqlConnection sqlConnection = new SqlConnection(_configuration.DatabaseConnection);
-
-                // Open the database connection asynchronously
+                using SqlConnection sqlConnection = new SqlConnection(this.configuration.DatabaseConnection);
                 await sqlConnection.OpenAsync().ConfigureAwait(false);
                 Console.WriteLine("Connection established successfully.");
 
-                // Create a command to execute the SQL query
-                using SqlCommand sqlCommand = new SqlCommand(selectAppointmentsByDoctorAndDateQuery, sqlConnection);
-
-                // Add parameters for filtering by doctor and date
+                using SqlCommand sqlCommand = new SqlCommand(SelectAppointmentsByDoctorAndDateQuery, sqlConnection);
                 sqlCommand.Parameters.AddWithValue("@DoctorId", doctorId);
                 sqlCommand.Parameters.AddWithValue("@Date", date.Date);
 
-                // Get the results from running the command
                 using SqlDataReader reader = await sqlCommand.ExecuteReaderAsync().ConfigureAwait(false);
-
-                // Load the results into the DataTable
                 await Task.Run(() => appointmentsByDoctorAndDateDataTable.Load(reader)).ConfigureAwait(false);
 
-                // Create a list to store the AppointmentJointModel objects
                 List<AppointmentJointModel> appointmentsByDoctorAndDate = new List<AppointmentJointModel>();
 
                 foreach (DataRow row in appointmentsByDoctorAndDateDataTable.Rows)
                 {
                     appointmentsByDoctorAndDate.Add(new AppointmentJointModel(
-                      (int)row["AppointmentId"],
-                      (bool)row["Finished"],
-                      (DateTime)row["DateAndTime"],
-                      (int)row["DepartmentId"],
-                      (string)row["DepartmentName"],
-                      (int)row["DoctorId"],
-                      (string)row["DoctorName"],
-                      (int)row["PatientId"],
-                      (string)row["PatientName"],
-                      (int)row["ProcedureId"],
-                      (string)row["ProcedureName"],
-                      (TimeSpan)row["ProcedureDuration"]
-                    ));
+                        (int)row["AppointmentId"],
+                        (bool)row["Finished"],
+                        (DateTime)row["DateAndTime"],
+                        (int)row["DepartmentId"],
+                        (string)row["DepartmentName"],
+                        (int)row["DoctorId"],
+                        (string)row["DoctorName"],
+                        (int)row["PatientId"],
+                        (string)row["PatientName"],
+                        (int)row["ProcedureId"],
+                        (string)row["ProcedureName"],
+                        (TimeSpan)row["ProcedureDuration"]));
                 }
-
-                sqlConnection.Close();
 
                 return appointmentsByDoctorAndDate;
             }
@@ -307,13 +321,19 @@ namespace Hospital.DatabaseServices
             }
             catch (Exception exception)
             {
-                throw new Exception($"General Error: {exception.Message}");
+                throw new DatabaseOperationException($"General Error: {exception.Message}");
             }
         }
 
+        /// <summary>
+        /// Retrieves appointments for a specific doctor.
+        /// </summary>
+        /// <param name="doctorId">The ID of the doctor.</param>
+        /// <returns>A task representing the asynchronous operation. The task result contains a list of appointments.</returns>
+        /// <exception cref="DatabaseOperationException">Thrown when a database error occurs.</exception>
         public async Task<List<AppointmentJointModel>> GetAppointmentsForDoctor(int doctorId)
         {
-            const string selectAppointmentsForDoctorQuery = @"SELECT 
+            const string SelectAppointmentsForDoctorQuery = @"SELECT 
                     a.AppointmentId,
                     a.Finished,
                     a.DateAndTime,
@@ -340,63 +360,55 @@ namespace Hospital.DatabaseServices
 
             try
             {
-                using SqlConnection sqlConnection = new SqlConnection(_configuration.DatabaseConnection);
-
-                // Open the database connection asynchronously
+                using SqlConnection sqlConnection = new SqlConnection(this.configuration.DatabaseConnection);
                 await sqlConnection.OpenAsync().ConfigureAwait(false);
                 Console.WriteLine("Connection established successfully.");
 
-                // Create a command to execute the SQL query
-                using SqlCommand sqlCommand = new SqlCommand(selectAppointmentsForDoctorQuery, sqlConnection);
-
-                // Add parameters for filtering by doctor
+                using SqlCommand sqlCommand = new SqlCommand(SelectAppointmentsForDoctorQuery, sqlConnection);
                 sqlCommand.Parameters.AddWithValue("@DoctorId", doctorId);
 
-                // Get the results from running the command
                 using SqlDataReader reader = await sqlCommand.ExecuteReaderAsync().ConfigureAwait(false);
-
-                // Load the results into the DataTable
                 await Task.Run(() => selectAppointmentsForDoctorDataTable.Load(reader)).ConfigureAwait(false);
 
-                // Create a list to store the AppointmentJointModel objects
                 List<AppointmentJointModel> appointmentsForDoctor = new List<AppointmentJointModel>();
                 foreach (DataRow row in selectAppointmentsForDoctorDataTable.Rows)
                 {
                     appointmentsForDoctor.Add(new AppointmentJointModel(
-                      (int)row["AppointmentId"],
-                      (bool)row["Finished"],
-                      (DateTime)row["DateAndTime"],
-                      (int)row["DepartmentId"],
-                      (string)row["DepartmentName"],
-                      (int)row["DoctorId"],
-                      (string)row["DoctorName"],
-                      (int)row["PatientId"],
-                      (string)row["PatientName"],
-                      (int)row["ProcedureId"],
-                      (string)row["ProcedureName"],
-                      (TimeSpan)row["ProcedureDuration"]
-                    ));
+                        (int)row["AppointmentId"],
+                        (bool)row["Finished"],
+                        (DateTime)row["DateAndTime"],
+                        (int)row["DepartmentId"],
+                        (string)row["DepartmentName"],
+                        (int)row["DoctorId"],
+                        (string)row["DoctorName"],
+                        (int)row["PatientId"],
+                        (string)row["PatientName"],
+                        (int)row["ProcedureId"],
+                        (string)row["ProcedureName"],
+                        (TimeSpan)row["ProcedureDuration"]));
                 }
-
-                sqlConnection.Close();
 
                 return appointmentsForDoctor;
             }
             catch (SqlException sqlException)
             {
-                Console.WriteLine($"SQL Error: {sqlException.Message}");
-                return new List<AppointmentJointModel>();
+                throw new DatabaseOperationException($"SQL Error: {sqlException.Message}");
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"General Error: {exception.Message}");
-                return new List<AppointmentJointModel>();
+                throw new DatabaseOperationException($"General Error: {exception.Message}");
             }
         }
 
+        /// <summary>
+        /// Retrieves a specific appointment by its ID.
+        /// </summary>
+        /// <param name="appointmentId">The ID of the appointment.</param>
+        /// <returns>A task representing the asynchronous operation. The task result contains the appointment, or null if not found.</returns>
+        /// <exception cref="DatabaseOperationException">Thrown when a database error occurs.</exception>
         public async Task<AppointmentJointModel> GetAppointment(int appointmentId)
         {
-            string getAppointmentByAppointmentIdQuery = @"SELECT 
+            const string GetAppointmentByAppointmentIdQuery = @"SELECT 
                     a.AppointmentId,
                     a.Finished,
                     a.DateAndTime,
@@ -421,18 +433,22 @@ namespace Hospital.DatabaseServices
             using DataTable dt = new DataTable();
             try
             {
-                using SqlConnection sqlConnection = new SqlConnection(_configuration.DatabaseConnection);
+                using SqlConnection sqlConnection = new SqlConnection(this.configuration.DatabaseConnection);
                 await sqlConnection.OpenAsync().ConfigureAwait(false);
-
                 Console.WriteLine("Connection established successfully.");
-                using SqlCommand sqlCommand = new SqlCommand(getAppointmentByAppointmentIdQuery, sqlConnection);
 
+                using SqlCommand sqlCommand = new SqlCommand(GetAppointmentByAppointmentIdQuery, sqlConnection);
                 sqlCommand.Parameters.AddWithValue("@AppointmentId", appointmentId);
 
                 using SqlDataReader reader = await sqlCommand.ExecuteReaderAsync().ConfigureAwait(false);
                 await Task.Run(() => dt.Load(reader)).ConfigureAwait(false);
 
-                AppointmentJointModel appointment = new AppointmentJointModel(
+                if (dt.Rows.Count == 0)
+                {
+                    return null;
+                }
+
+                return new AppointmentJointModel(
                     (int)dt.Rows[0]["AppointmentId"],
                     (bool)dt.Rows[0]["Finished"],
                     (DateTime)dt.Rows[0]["DateAndTime"],
@@ -444,54 +460,49 @@ namespace Hospital.DatabaseServices
                     (string)dt.Rows[0]["PatientName"],
                     (int)dt.Rows[0]["ProcedureId"],
                     (string)dt.Rows[0]["ProcedureName"],
-                    (TimeSpan)dt.Rows[0]["ProcedureDuration"]
-                );
-
-
-                sqlConnection.Close();
-                return appointment;
+                    (TimeSpan)dt.Rows[0]["ProcedureDuration"]);
             }
             catch (SqlException sqlException)
             {
-                Console.WriteLine($"SQL Error: {sqlException.Message}");
-                return null;
+                throw new DatabaseOperationException($"SQL Error: {sqlException.Message}");
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"General Error: {exception.Message}");
-                return null;
-
+                throw new DatabaseOperationException($"General Error: {exception.Message}");
             }
-
-            throw new AppointmentNotFoundException($"Appointment not found for id {appointmentId}");
         }
+
+        /// <summary>
+        /// Removes an appointment from the database.
+        /// </summary>
+        /// <param name="appointmentId">The ID of the appointment to remove.</param>
+        /// <returns>A task representing the asynchronous operation. The task result is true if the appointment was removed successfully.</returns>
+        /// <exception cref="DatabaseOperationException">Thrown when a database error occurs or the appointment does not exist.</exception>
         public async Task<bool> RemoveAppointmentFromDataBase(int appointmentId)
         {
             try
             {
                 Console.WriteLine($"Checking if appointment ID {appointmentId} exists before deletion...");
 
-                const string checkAppointmentExistsQuery = "SELECT COUNT(*) FROM Appointments WHERE AppointmentId = @AppointmentId";
+                const string CheckAppointmentExistsQuery = "SELECT COUNT(*) FROM Appointments WHERE AppointmentId = @AppointmentId";
 
-                using SqlConnection sqlConnection = new SqlConnection(_configuration.DatabaseConnection);
+                using SqlConnection sqlConnection = new SqlConnection(this.configuration.DatabaseConnection);
                 await sqlConnection.OpenAsync().ConfigureAwait(false);
 
-                using SqlCommand checkAppointmentExistsCommand = new SqlCommand(checkAppointmentExistsQuery, sqlConnection);
+                using SqlCommand checkAppointmentExistsCommand = new SqlCommand(CheckAppointmentExistsQuery, sqlConnection);
                 checkAppointmentExistsCommand.Parameters.AddWithValue("@AppointmentId", appointmentId);
 
                 int appointmentExists = (int)await checkAppointmentExistsCommand.ExecuteScalarAsync().ConfigureAwait(false);
 
                 if (appointmentExists == 0)
                 {
-                    throw new DatabaseOperationException($"Appointment ID {appointmentId} does NOT exist in DB. Throwing exception.");
-                    throw new AppointmentNotFoundException($"Appointment {appointmentId} not found.");
+                    throw new DatabaseOperationException($"Appointment ID {appointmentId} does not exist in the database.");
                 }
 
                 Console.WriteLine($"Appointment ID {appointmentId} exists. Proceeding with deletion.");
 
-                const string deleteAppointmentQuery = "DELETE FROM Appointments WHERE AppointmentId = @AppointmentId";
-                using SqlCommand deleteAppointmentCommand = new SqlCommand(deleteAppointmentQuery, sqlConnection);
-
+                const string DeleteAppointmentQuery = "DELETE FROM Appointments WHERE AppointmentId = @AppointmentId";
+                using SqlCommand deleteAppointmentCommand = new SqlCommand(DeleteAppointmentQuery, sqlConnection);
                 deleteAppointmentCommand.Parameters.AddWithValue("@AppointmentId", appointmentId);
 
                 int numberOfRowsAffectedByDeleteSqlCommand = await deleteAppointmentCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
@@ -504,22 +515,16 @@ namespace Hospital.DatabaseServices
                 else
                 {
                     throw new DatabaseOperationException($"Deletion failed for appointment ID {appointmentId}. No rows affected.");
-                    return false;
                 }
             }
             catch (SqlException sqlException)
             {
                 throw new DatabaseOperationException($"SQL Error while deleting appointment: {sqlException.Message}");
-                return false;
             }
             catch (Exception exception)
             {
                 throw new DatabaseOperationException($"General Error while deleting appointment: {exception.Message}");
-                return false;
             }
         }
-
-
-
     }
 }

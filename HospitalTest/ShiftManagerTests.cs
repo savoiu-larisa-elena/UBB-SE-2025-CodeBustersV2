@@ -36,7 +36,7 @@ namespace Hospital.Tests.Managers
 
             await _manager.LoadShifts(1);
 
-            Assert.AreEqual(1, _manager.GetShifts().Count);
+            Assert.That(_manager.GetShifts().Count, Is.EqualTo(1));
         }
 
         [Test]
@@ -51,7 +51,7 @@ namespace Hospital.Tests.Managers
 
             await _manager.LoadUpcomingDoctorDayshifts(1);
 
-            Assert.AreEqual(1, _manager.GetShifts().Count);
+            Assert.That(_manager.GetShifts().Count, Is.EqualTo(1));
         }
 
         [Test]
@@ -62,7 +62,7 @@ namespace Hospital.Tests.Managers
 
             var result = _manager.GetShifts();
 
-            Assert.AreEqual(1, result.Count);
+            Assert.That(result.Count, Is.EqualTo(1));
         }
 
         [Test]
@@ -74,7 +74,7 @@ namespace Hospital.Tests.Managers
 
             var result = _manager.GetShiftByDay(today);
 
-            Assert.AreEqual(today.Date, result.DateTime.Date);
+            Assert.That(result.DateTime.Date, Is.EqualTo(today.Date));
         }
 
         [Test]
@@ -90,8 +90,8 @@ namespace Hospital.Tests.Managers
             var expectedStart = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             var expectedEnd = expectedStart.AddMonths(1).AddDays(-1);
 
-            Assert.AreEqual(expectedStart, start.Date);
-            Assert.AreEqual(expectedEnd, end.Date);
+            Assert.That(start.Date, Is.EqualTo(expectedStart));
+            Assert.That(end.Date, Is.EqualTo(expectedEnd));
         }
 
         [Test]
@@ -105,12 +105,12 @@ namespace Hospital.Tests.Managers
             var result = _manager.GenerateTimeSlots(date, new List<ShiftModel> { shift }, new List<AppointmentJointModel> { appointment });
 
             // Check slot count for 24h with 30 min intervals
-            Assert.AreEqual(48, result.Count);
+            Assert.That(result.Count, Is.EqualTo(48));
 
             // Check slot at 9:00 AM is appointment
             var slotAt9 = result.FirstOrDefault(s => s.TimeSlot.Hour == 9 && s.TimeSlot.Minute == 0);
             Assert.NotNull(slotAt9);
-            Assert.AreEqual("MRI", slotAt9.Appointment);
+            Assert.That(slotAt9.Appointment, Is.EqualTo("MRI"));
         }
     }
 }

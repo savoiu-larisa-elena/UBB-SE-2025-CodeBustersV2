@@ -12,7 +12,7 @@ namespace Hospital.DatabaseServices
         private readonly ApplicationConfiguration _configuration;
         private readonly IDepartmentsDatabaseService _databaseService;
 
-        public DepartmentsDatabaseService(IDepartmentsDatabaseService databaseService = null)
+        public DepartmentsDatabaseService(IDepartmentsDatabaseService? databaseService = null)
         {
             _configuration = ApplicationConfiguration.GetInstance();
             _databaseService = databaseService ?? this;

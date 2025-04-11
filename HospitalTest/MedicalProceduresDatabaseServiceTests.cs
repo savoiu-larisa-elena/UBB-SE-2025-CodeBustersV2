@@ -249,7 +249,7 @@ namespace HospitalTest
     // Test-specific implementation that doesn't use a real database
     public class MockMedicalProceduresDatabaseService : MedicalProceduresDatabaseService
     {
-        public async Task<List<ProcedureModel>> GetProceduresByDepartmentId(int departmentId)
+        public new async Task<List<ProcedureModel>> GetProceduresByDepartmentId(int departmentId)
         {
             // Simulate database access without actually connecting to a database
             await Task.Delay(10); // Simulate network delay
@@ -297,7 +297,7 @@ namespace HospitalTest
             _throwSql = throwSql;
         }
 
-        public async Task<List<ProcedureModel>> GetProceduresByDepartmentId(int departmentId)
+        public new async Task<List<ProcedureModel>> GetProceduresByDepartmentId(int departmentId)
         {
             await Task.Delay(1); // Simulate async behavior
 
@@ -318,7 +318,7 @@ namespace HospitalTest
             var faulty = new FaultyMedicalProceduresDatabaseService(true);
 
             // Act
-            List<ProcedureModel> result = null;
+            List<ProcedureModel>? result = null;
             try
             {
                 result = await faulty.GetProceduresByDepartmentId(1);
@@ -341,7 +341,7 @@ namespace HospitalTest
             var faulty = new FaultyMedicalProceduresDatabaseService(false);
 
             // Act
-            List<ProcedureModel> result = null;
+            List<ProcedureModel>? result = null;
             try
             {
                 result = await faulty.GetProceduresByDepartmentId(1);
@@ -370,7 +370,7 @@ namespace HospitalTest
             int departmentId = 1;
             
             // Act
-            List<ProcedureModel> result = null;
+            List<ProcedureModel>? result = null;
             try
             {
                 result = await service.GetProceduresByDepartmentId(departmentId);
@@ -401,7 +401,7 @@ namespace HospitalTest
             // Act & Assert
             foreach (int departmentId in departmentIds)
             {
-                List<ProcedureModel> result = null;
+                List<ProcedureModel>? result = null;
                 try
                 {
                     result = await service.GetProceduresByDepartmentId(departmentId);
@@ -432,7 +432,7 @@ namespace HospitalTest
             int negativeDepartmentId = -1;
             
             // Act
-            List<ProcedureModel> result = null;
+            List<ProcedureModel>? result = null;
             try
             {
                 result = await service.GetProceduresByDepartmentId(negativeDepartmentId);
@@ -457,7 +457,7 @@ namespace HospitalTest
             int zeroDepartmentId = 0;
             
             // Act
-            List<ProcedureModel> result = null;
+            List<ProcedureModel>? result = null;
             try
             {
                 result = await service.GetProceduresByDepartmentId(zeroDepartmentId);
@@ -482,7 +482,7 @@ namespace HospitalTest
             int largeDepartmentId = 999999;
             
             // Act
-            List<ProcedureModel> result = null;
+            List<ProcedureModel>? result = null;
             try
             {
                 result = await service.GetProceduresByDepartmentId(largeDepartmentId);
@@ -512,14 +512,14 @@ namespace HospitalTest
             int departmentId = 1;
             
             // Use reflection to access the private method
-            var methodInfo = typeof(MedicalProceduresDatabaseService).GetMethod("GetProceduresByDepartmentId", 
-                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            var methodInfo = typeof(MedicalProceduresDatabaseService)!.GetMethod("GetProceduresByDepartmentId", 
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)!;
             
             // Act
-            List<ProcedureModel> result = null;
+            List<ProcedureModel>? result = null;
             try
             {
-                result = await (Task<List<ProcedureModel>>)methodInfo.Invoke(service, new object[] { departmentId });
+                result = await (Task<List<ProcedureModel>>)methodInfo!.Invoke(service, new object[] { departmentId })!;
             }
             catch (Exception ex)
             {
