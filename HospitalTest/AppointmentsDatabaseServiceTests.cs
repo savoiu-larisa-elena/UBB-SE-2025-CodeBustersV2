@@ -285,5 +285,93 @@ namespace Hospital.Tests.DatabaseServices
                 async () => await _service.RemoveAppointmentFromDataBase(invalidId)
             );
         }
+
+        [Test]
+        public async Task GetAllAppointments_ValidData_ReturnsAppointments()
+        {
+            // Arrange
+            var mockAppointment1 = new AppointmentJointModel
+            {
+                AppointmentId = 1,
+                Finished = false,
+                DateAndTime = DateTime.Now.AddDays(1),
+                DepartmentId = 1,
+                DepartmentName = "Cardiology",
+                DoctorId = 1,
+                DoctorName = "Dr. Smith",
+                PatientId = 1,
+                PatientName = "John Doe",
+                ProcedureId = 1,
+                ProcedureName = "Heart Checkup",
+                ProcedureDuration = TimeSpan.FromMinutes(30)
+            };
+
+            var mockAppointment2 = new AppointmentJointModel
+            {
+                AppointmentId = 2,
+                Finished = true,
+                DateAndTime = DateTime.Now.AddDays(2),
+                DepartmentId = 2,
+                DepartmentName = "Neurology",
+                DoctorId = 2,
+                DoctorName = "Dr. Adams",
+                PatientId = 2,
+                PatientName = "Jane Doe",
+                ProcedureId = 2,
+                ProcedureName = "Brain MRI",
+                ProcedureDuration = TimeSpan.FromMinutes(45)
+            };
+
+            var appointments = new List<AppointmentJointModel> { mockAppointment1, mockAppointment2 };
+
+            var mockService = new Mock<IAppointmentsDatabaseService>();
+            mockService.Setup(service => service.GetAllAppointments()).ReturnsAsync(appointments);
+
+            // Act
+            var result = await mockService.Object.GetAllAppointments();
+
+            // Assert
+            Assert.Multiple(() =>
+            {
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result.Count, Is.EqualTo(2));
+                Assert.That(result[0].DoctorName, Is.EqualTo("Dr. Smith"));
+                Assert.That(result[1].DoctorName, Is.EqualTo("Dr. Adams"));
+            });
+        }
+
+        [Test]
+        public async Task GetAllAppointments_GetAppointmentsAsync()
+        {
+            // Arrange
+            var mockService = new Mock<IAppointmentsDatabaseService>();
+            var appointments = new List<AppointmentJointModel>
+            {
+                new AppointmentJointModel { AppointmentId = 1, DoctorName = "Dr. Smith" },
+                new AppointmentJointModel { AppointmentId = 2, DoctorName = "Dr. Adams" }
+            };
+            mockService.Setup(service => service.GetAllAppointments()).ReturnsAsync(appointments);
+            // Act
+            var result = await mockService.Object.GetAllAppointments();
+            // Assert
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Count, Is.EqualTo(2));
+        }
+
+
+        [Test]
+        public async Task GetAllAppointments_NoAppointments_ReturnsEmptyList()
+        {
+            // Arrange
+            var mockService = new Mock<IAppointmentsDatabaseService>();
+            mockService.Setup(service => service.GetAllAppointments()).ReturnsAsync(new List<AppointmentJointModel>());
+
+            // Act
+            var result = await mockService.Object.GetAllAppointments();
+
+            // Assert
+            Assert.That(result, Is.Empty);
+        }
+
     }
 }

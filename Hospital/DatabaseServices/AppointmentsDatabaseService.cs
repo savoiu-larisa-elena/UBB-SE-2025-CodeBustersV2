@@ -134,13 +134,11 @@ namespace Hospital.DatabaseServices
             }
             catch (SqlException sqlException)
             {
-                Console.WriteLine($"SQL Error: {sqlException.Message}");
-                return new List<AppointmentJointModel>();
+                throw new DatabaseOperationException($"SQL Error: {sqlException.Message}");
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"General Error: {exception.Message}");
-                return new List<AppointmentJointModel>();
+                throw new DatabaseOperationException($"General Error: {exception.Message}");
             }
         }
 

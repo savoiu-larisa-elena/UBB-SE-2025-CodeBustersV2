@@ -13,5 +13,6 @@ namespace Hospital.DatabaseServices
         Task<List<AppointmentJointModel>> GetAppointmentsByDoctorAndDate(int doctorId, DateTime date);
         Task<List<AppointmentJointModel>> GetAppointmentsForPatient(int patientId);
         Task<List<AppointmentJointModel>> GetAppointmentsForDoctor(int doctorId);
+        Task<List<AppointmentJointModel>> GetAllAppointments();
     }
 } 
